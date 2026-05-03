@@ -16,7 +16,7 @@ export default async function Page({ params }: PageProps) {
     notFound()
   }
 
-  const relatedProducts = await getRelatedProducts(product.category_id, id)
+  const relatedProducts = product.category_id ? await getRelatedProducts(product.category_id, id) : []
 
   return (
     <main className="min-h-screen flex flex-col bg-brand-light/30">
