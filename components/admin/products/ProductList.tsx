@@ -115,7 +115,7 @@ export default function ProductList({ products, categories, onDeleted, onUpdated
                   {product.is_service ? (
                     <span className="text-gray-300">—</span>
                   ) : (
-                    <span className={`font-medium ${product.stock_quantity < 5 ? 'text-red-500' : 'text-gray-600'}`}>
+                    <span className={`font-medium ${(product.stock_quantity ?? 0) < 5 ? 'text-red-500' : 'text-gray-600'}`}>
                       {product.stock_quantity}
                     </span>
                   )}
