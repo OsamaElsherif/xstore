@@ -113,7 +113,7 @@ export default function EditProductModal({ product, categories, onClose, onUpdat
                 <label className="block text-sm font-medium text-gray-700 mb-1">Category*</label>
                 <select 
                   required
-                  value={formData.category_id}
+                  value={formData.category_id || ''}
                   onChange={e => setFormData({...formData, category_id: e.target.value})}
                   className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none bg-white"
                 >
@@ -142,8 +142,8 @@ export default function EditProductModal({ product, categories, onClose, onUpdat
                     type="number" 
                     required
                     min="0"
-                    disabled={formData.is_service}
-                    value={formData.is_service ? 0 : formData.stock_quantity}
+                    disabled={formData.is_service ?? undefined}
+                    value={formData.is_service ? 0 : formData.stock_quantity ?? 0}
                     onChange={e => setFormData({...formData, stock_quantity: Number(e.target.value)})}
                     className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none disabled:bg-gray-50 disabled:text-gray-400"
                   />
@@ -154,7 +154,7 @@ export default function EditProductModal({ product, categories, onClose, onUpdat
                 <input 
                   type="checkbox" 
                   id="is_service"
-                  checked={formData.is_service}
+                  checked={formData.is_service ?? false}
                   onChange={e => setFormData({...formData, is_service: e.target.checked, stock_quantity: e.target.checked ? 0 : formData.stock_quantity})}
                   className="w-4 h-4 text-indigo-600 rounded focus:ring-indigo-500"
                 />
