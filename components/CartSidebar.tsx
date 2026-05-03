@@ -78,7 +78,7 @@ export default function CartSidebar() {
                           {language === 'ar' ? item.name_ar : item.name_en}
                         </h4>
                         <button 
-                          onClick={() => removeFromCart(item.id)}
+                          onClick={() => removeFromCart(Number(item.id))}
                           className="text-brand-gray hover:text-red-500 transition-colors"
                         >
                           <X size={16} />
@@ -89,7 +89,7 @@ export default function CartSidebar() {
                     <div className="flex items-center gap-3 mt-2">
                       <div className="flex items-center border border-brand-gray/30 rounded-lg overflow-hidden">
                         <button 
-                          onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                          onClick={() => updateQuantity(Number(item.id), item.quantity - 1)}
                           className="px-2 py-1 bg-brand-light text-brand-dark hover:bg-brand-gray/20 transition-colors"
                         >
                           <Minus size={14} />
@@ -98,7 +98,7 @@ export default function CartSidebar() {
                           {item.quantity}
                         </span>
                         <button 
-                          onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                          onClick={() => updateQuantity(Number(item.id), item.quantity + 1)}
                           className="px-2 py-1 bg-brand-light text-brand-dark hover:bg-brand-gray/20 transition-colors"
                         >
                           <Plus size={14} />
