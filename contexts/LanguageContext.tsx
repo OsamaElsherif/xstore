@@ -1,0 +1,201 @@
+'use client';
+
+import React, { createContext, useContext, useState, useEffect } from 'react';
+
+type Language = 'en' | 'ar';
+
+const translations = {
+  en: {
+    searchPlaceholder: "Search products...",
+    newCollection: "New Collection 2026",
+    heroTitle1: "Tech That",
+    heroTitle2: "Connects",
+    heroTitle3: "You",
+    heroDesc: "Discover the latest mobile phones, premium accessories, and vapes at Jacob store.",
+    shopNow: "Shop Now",
+    viewLookbook: "View Lookbook",
+    featuredProduct: "Featured Product",
+    latestFlagship: "Latest Flagship Smartphone",
+    shopByCategory: "Shop by Category",
+    findExactly: "Find exactly what you're looking for",
+    explore: "Explore",
+    addToCart: "Add to Cart",
+    mobilePhones: "Mobile Phones",
+    mobilePhonesDesc: "Discover the latest smartphones from all top brands including Apple, Samsung, Google, Xiaomi, and more.",
+    viewAllPhones: "View All Phones",
+    phoneAccessories: "Phone Accessories",
+    phoneAccessoriesDesc: "Enhance and protect your device with our premium covers, AirPods, and fast chargers.",
+    viewAllAccessories: "View All Accessories",
+    vapeAccessories: "Vape & Accessories",
+    vapeAccessoriesDesc: "Explore our collection of premium vapes, e-liquids, and essential accessories.",
+    viewAllVape: "View All Vape Products",
+    footerDesc: "Your one-stop destination for premium products. We curate the best items to elevate your everyday lifestyle.",
+    quickLinks: "Quick Links",
+    home: "Home",
+    shop: "Shop",
+    aboutUs: "About Us",
+    contact: "Contact",
+    faq: "FAQ",
+    customerService: "Customer Service",
+    shippingPolicy: "Shipping Policy",
+    returns: "Returns & Exchanges",
+    trackOrder: "Track Order",
+    sizeGuide: "Size Guide",
+    privacyPolicy: "Privacy Policy",
+    newsletter: "Newsletter",
+    newsletterDesc: "Subscribe to receive updates, access to exclusive deals, and more.",
+    enterEmail: "Enter your email",
+    subscribe: "Subscribe",
+    allRightsReserved: "All rights reserved.",
+    termsOfService: "Terms of Service",
+    bestseller: "Bestseller",
+    new: "New",
+    sale: "Sale",
+    gaming: "Gaming",
+    popular: "Popular",
+    essential: "Essential",
+    hideCategories: "Hide Categories",
+    showCategories: "Show Categories",
+    maintenance: "Maintenance",
+    checkoutSuccess: "Order Placed Successfully!",
+    orderNumber: "Order Number",
+    thankYou: "Thank you for shopping with us.",
+    adminRevenue: "Total Revenue",
+    adminTotalOrders: "Total Orders",
+    adminSearchPlaceholder: "Search orders...",
+    statusNOT_DONE: "Not Done",
+    statusUNDER_REPAIR: "Under Repair",
+    statusDONE: "Done",
+    paymentPAID: "Paid",
+    paymentUNPAID: "Unpaid",
+    outOfStock: "Out of Stock",
+    egp: "EGP",
+    signIn: "Sign In",
+    signOut: "Sign Out",
+    email: "Email",
+    password: "Password",
+    signUp: "Sign Up",
+    fullName: "Full Name",
+    alreadyHaveAccount: "Already have an account?",
+    createAccount: "Create Account",
+    welcomeTitleSignup: "Join Us",
+    welcomeSubtitleSignup: "Create an account to start shopping",
+    searching: "Searching",
+    seeAllResults: "See all results for",
+    noResultsFound: "No results found",
+  },
+  ar: {
+    searchPlaceholder: "البحث عن المنتجات...",
+    newCollection: "مجموعة جديدة 2026",
+    heroTitle1: "تكنولوجيا",
+    heroTitle2: "توصلك",
+    heroTitle3: "بالعالم",
+    heroDesc: "اكتشف أحدث الهواتف المحمولة والإكسسوارات الفاخرة والسجائر الإلكترونية في متجر جاكوب.",
+    shopNow: "تسوق الآن",
+    viewLookbook: "عرض الكتالوج",
+    featuredProduct: "منتج مميز",
+    latestFlagship: "أحدث هاتف ذكي رائد",
+    shopByCategory: "تسوق حسب الفئة",
+    findExactly: "ابحث عما تبحث عنه بالضبط",
+    explore: "استكشف",
+    addToCart: "أضف إلى السلة",
+    mobilePhones: "الهواتف المحمولة",
+    mobilePhonesDesc: "اكتشف أحدث الهواتف الذكية من جميع العلامات التجارية الكبرى بما في ذلك أبل وسامسونج وجوجل وشاومي والمزيد.",
+    viewAllPhones: "عرض جميع الهواتف",
+    phoneAccessories: "إكسسوارات الهواتف",
+    phoneAccessoriesDesc: "قم بتعزيز وحماية جهازك من خلال أغطيتنا الفاخرة وسماعات AirPods والشواحن السريعة.",
+    viewAllAccessories: "عرض جميع الإكسسوارات",
+    vapeAccessories: "السجائر الإلكترونية وإكسسواراتها",
+    vapeAccessoriesDesc: "استكشف مجموعتنا من السجائر الإلكترونية الفاخرة والسوائل الإلكترونية والإكسسوارات الأساسية.",
+    viewAllVape: "عرض جميع منتجات السجائر الإلكترونية",
+    footerDesc: "وجهتك الشاملة للمنتجات الفاخرة. نحن نرعى أفضل العناصر للارتقاء بأسلوب حياتك اليومي.",
+    quickLinks: "روابط سريعة",
+    home: "الرئيسية",
+    shop: "المتجر",
+    aboutUs: "معلومات عنا",
+    contact: "اتصل بنا",
+    faq: "الأسئلة الشائعة",
+    customerService: "خدمة العملاء",
+    shippingPolicy: "سياسة الشحن",
+    returns: "الاسترجاع والاستبدال",
+    trackOrder: "تتبع الطلب",
+    sizeGuide: "دليل المقاسات",
+    privacyPolicy: "سياسة الخصوصية",
+    newsletter: "النشرة الإخبارية",
+    newsletterDesc: "اشترك لتلقي التحديثات والوصول إلى الصفقات الحصرية والمزيد.",
+    enterEmail: "أدخل بريدك الإلكتروني",
+    subscribe: "اشترك",
+    allRightsReserved: "جميع الحقوق محفوظة.",
+    termsOfService: "شروط الخدمة",
+    bestseller: "الأكثر مبيعاً",
+    new: "جديد",
+    sale: "تخفيض",
+    gaming: "ألعاب",
+    popular: "شائع",
+    essential: "أساسي",
+    hideCategories: "إخفاء الفئات",
+    showCategories: "إظهار الفئات",
+    maintenance: "الصيانة",
+    checkoutSuccess: "تم تقديم الطلب بنجاح!",
+    orderNumber: "رقم الطلب",
+    thankYou: "شكراً لتسوقكم معنا.",
+    adminRevenue: "إجمالي الإيرادات",
+    adminTotalOrders: "إجمالي الطلبات",
+    adminSearchPlaceholder: "البحث في الطلبات...",
+    statusNOT_DONE: "لم يتم",
+    statusUNDER_REPAIR: "قيد الإصلاح",
+    statusDONE: "تم",
+    paymentPAID: "مدفوع",
+    paymentUNPAID: "غير مدفوع",
+    outOfStock: "غير متوفر",
+    egp: "ج.م",
+    signIn: "تسجيل الدخول",
+    signOut: "تسجيل الخروج",
+    email: "البريد الإلكتروني",
+    password: "كلمة المرور",
+    signUp: "إنشاء حساب",
+    fullName: "الاسم الكامل",
+    alreadyHaveAccount: "لديك حساب بالفعل؟",
+    createAccount: "إنشاء حساب",
+    welcomeTitleSignup: "انضم إلينا",
+    welcomeSubtitleSignup: "أنشئ حساباً لبدء التسوق",
+    searching: "جاري البحث",
+    seeAllResults: "عرض جميع النتائج لـ",
+    noResultsFound: "لم يتم العثور على نتائج",
+  }
+};
+
+interface LanguageContextType {
+  language: Language;
+  setLanguage: (lang: Language) => void;
+  t: (key: keyof typeof translations['en']) => string;
+}
+
+const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
+
+export function LanguageProvider({ children }: { children: React.ReactNode }) {
+  const [language, setLanguage] = useState<Language>('en');
+
+  useEffect(() => {
+    document.documentElement.dir = language === 'ar' ? 'rtl' : 'ltr';
+    document.documentElement.lang = language;
+  }, [language]);
+
+  const t = (key: keyof typeof translations['en']) => {
+    return translations[language][key] || key;
+  };
+
+  return (
+    <LanguageContext.Provider value={{ language, setLanguage, t }}>
+      {children}
+    </LanguageContext.Provider>
+  );
+}
+
+export function useLanguage() {
+  const context = useContext(LanguageContext);
+  if (context === undefined) {
+    throw new Error('useLanguage must be used within a LanguageProvider');
+  }
+  return context;
+}

@@ -1,0 +1,283 @@
+'use server'
+
+import { createClient } from '@/lib/supabase/server'
+import { Product, Category } from '@/types'
+import { TablesInsert } from '@/types/database.types'
+import { getCurrentProfile } from './auth'
+import { revalidatePath } from 'next/cache'
+
+type ProductInsert = TablesInsert<'products'>
+
+export async function getProducts(categorySlug?: string): Promise<Product[]> {
+  const supabase = await createClient()
+  
+  let query = supabase.from('products').select('*, categories!inner(*)')
+  
+  if (categorySlug) {
+    query = query.eq('categories.slug', categorySlug)
+  }
+  
+  const { data, error } = await query
+  
+  if (error) {
+    console.error('Error fetching products:', error)
+    return []
+  }
+  
+  return data as Product[]
+}
+
+export async function getProductById(id: string): Promise<(Product & { categories: Category | null }) | null> {
+  const supabase = await createClient()
+  const { data, error } = await supabase
+    .from('products')
+    .select('*, categories(*)')
+    .eq('id', id)
+    .single()
+    
+  if (error) {
+    console.error('Error fetching product:', error)
+    return null
+  }
+  
+  return data as (Product & { categories: Category | null })
+}
+
+export async function getRelatedProducts(categoryId: string, excludeProductId: string): Promise<Product[]> {
+  const supabase = await createClient()
+  const { data, error } = await supabase
+    .from('products')
+    .select('*')
+    .eq('category_id', categoryId)
+    .neq('id', excludeProductId)
+    .limit(4)
+
+  if (error) {
+    console.error('Error fetching related products:', error)
+    return []
+  }
+
+  return data as Product[]
+}
+
+export async function getProductsByCategory(
+  categorySlug: string,
+  options?: {
+    sortBy?: 'price_asc' | 'price_desc' | 'rating' | 'newest'
+    minPrice?: number
+    maxPrice?: number
+    inStockOnly?: boolean
+  }
+): Promise<{
+  products: Product[]
+  category: Category | null
+}> {
+  const supabase = await createClient()
+
+  // 1. Get category info
+  const { data: category, error: catError } = await supabase
+    .from('categories')
+    .select('*')
+    .eq('slug', categorySlug)
+    .single()
+
+  if (catError || !category) {
+    return { products: [], category: null }
+  }
+
+  // 2. Get products
+  let query = supabase
+    .from('products')
+    .select('*')
+    .eq('category_id', category.id)
+
+  if (options?.minPrice) query = query.gte('price', options.minPrice)
+  if (options?.maxPrice) query = query.lte('price', options.maxPrice)
+  if (options?.inStockOnly) query = query.gt('stock_quantity', 0)
+
+  switch (options?.sortBy) {
+    case 'price_asc': query = query.order('price', { ascending: true }); break
+    case 'price_desc': query = query.order('price', { ascending: false }); break
+    case 'rating': query = query.order('rating', { ascending: false }); break
+    case 'newest': query = query.order('created_at', { ascending: false }); break
+    default: query = query.order('created_at', { ascending: false })
+  }
+
+  const { data: products, error: prodError } = await query
+
+  if (prodError) {
+    console.error('Error fetching products by category:', prodError)
+    return { products: [], category: category as Category }
+  }
+
+  return { products: products as Product[], category: category as Category }
+}
+
+export async function searchProducts(
+  query: string,
+  options?: {
+    categorySlug?: string
+    limit?: number
+  }
+): Promise<Product[]> {
+  const supabase = await createClient()
+
+  // Primary: full-text search if query is substantial, otherwise fallback to ILIKE
+  // We use a combination for better coverage
+  const { data, error } = await supabase
+    .from('products')
+    .select('*, categories(name_en, slug)')
+    .or(`name_en.ilike.%${query}%, name_ar.ilike.%${query}%, description_en.ilike.%${query}%, description_ar.ilike.%${query}%`)
+    .limit(options?.limit ?? 20)
+
+  if (error) {
+    console.error('Error searching products:', error)
+    return []
+  }
+
+  return data as Product[]
+}
+
+export async function getFeaturedProducts() {
+  const supabase = await createClient()
+  const { data, error } = await supabase
+    .from('products')
+    .select('*, categories!inner(*)')
+    
+  if (error) {
+    console.error('Error fetching featured products:', error)
+    return { phones: [], accessories: [], vapes: [] }
+  }
+  
+  const products = data as (Product & { categories: { slug: string } })[]
+
+  return {
+    phones: products.filter(p => p.categories.slug === 'phones'),
+    accessories: products.filter(p => p.categories.slug === 'accessories'),
+    vapes: products.filter(p => p.categories.slug === 'vapes')
+  }
+}
+
+// Admin Functions
+
+export async function getAdminProducts(): Promise<(Product & { category_name_en: string | null })[]> {
+  const profile = await getCurrentProfile()
+  if (!profile || profile.role !== 'ADMIN') {
+    throw new Error('Unauthorized')
+  }
+
+  const supabase = await createClient()
+  const { data, error } = await supabase
+    .from('products')
+    .select('*, categories(name_en)')
+    .order('created_at', { ascending: false })
+
+  if (error) {
+    console.error('Error fetching admin products:', error)
+    return []
+  }
+
+  return (data || []).map((p: any) => ({
+    ...p,
+    category_name_en: p.categories?.name_en || null
+  })) as (Product & { category_name_en: string | null })[]
+}
+
+export async function createProduct(data: ProductInsert): Promise<{ success: boolean; error?: string; product?: Product }> {
+  const profile = await getCurrentProfile()
+  if (!profile || profile.role !== 'ADMIN') {
+    return { success: false, error: 'Unauthorized' }
+  }
+
+  const supabase = await createClient()
+  const { data: product, error } = await supabase
+    .from('products')
+    .insert(data)
+    .select()
+    .single()
+
+  if (error) {
+    console.error('Error creating product:', error)
+    console.log(error)
+    return { success: false, error: error.message }
+  }
+
+  revalidatePath('/admin/products')
+  return { success: true, product: product as Product }
+}
+
+export async function createProductsBulk(products: ProductInsert[]): Promise<{
+  success: number
+  failed: number
+  errors: string[]
+}> {
+  const profile = await getCurrentProfile()
+  if (!profile || profile.role !== 'ADMIN') {
+    return { success: 0, failed: products.length, errors: ['Unauthorized'] }
+  }
+
+  const supabase = await createClient()
+  let successCount = 0
+  let failedCount = 0
+  const errorMessages: string[] = []
+
+  // Loop through each product and insert individually so one failure doesn't block the rest
+  for (const productData of products) {
+    const { error } = await supabase.from('products').insert(productData)
+    if (error) {
+      failedCount++
+      errorMessages.push(`Row ${successCount + failedCount}: ${error.message}`)
+    } else {
+      successCount++
+    }
+  }
+
+  revalidatePath('/admin/products')
+  return {
+    success: successCount,
+    failed: failedCount,
+    errors: errorMessages
+  }
+}
+
+export async function updateProduct(id: string, data: Partial<ProductInsert>): Promise<{ success: boolean; error?: string }> {
+  const profile = await getCurrentProfile()
+  if (!profile || profile.role !== 'ADMIN') {
+    return { success: false, error: 'Unauthorized' }
+  }
+
+  const supabase = await createClient()
+  const { error } = await supabase
+    .from('products')
+    .update(data)
+    .eq('id', id)
+
+  if (error) {
+    console.error('Error updating product:', error)
+    return { success: false, error: error.message }
+  }
+
+  revalidatePath('/admin/products')
+  return { success: true }
+}
+
+export async function deleteProduct(id: string): Promise<{ success: boolean; error?: string }> {
+  const profile = await getCurrentProfile()
+  if (!profile || profile.role !== 'ADMIN') {
+    return { success: false, error: 'Unauthorized' }
+  }
+
+  const supabase = await createClient()
+  const { error } = await supabase
+    .from('products')
+    .delete()
+    .eq('id', id)
+
+  if (error) {
+    console.error('Error deleting product:', error)
+    return { success: false, error: error.message }
+  }
+
+  revalidatePath('/admin/products')
+  return { success: true }
+}
