@@ -55,14 +55,12 @@ export async function getAllSettings(): Promise<AppSetting[]> {
 export async function saveSettings(
   settings: { key: keyof SettingsMap; value: string }[]
 ): Promise<{ success: boolean; error?: string }> {
-  const supabase = await createClient()
-
   // Verify ADMIN
-  const { data: { user } } = await supabase.auth.getUser()
+  const { data: { user } } = await supabaseAdmin.auth.getUser()
   if (!user) return { success: false, error: 'Not authenticated' }
 
   // Check role
-  const { data: profile } = await supabase
+  const { data: profile } = await supabaseAdmin
     .from('profiles')
     .select('role')
     .eq('id', user.id)
@@ -72,7 +70,7 @@ export async function saveSettings(
     return { success: false, error: 'Unauthorized' }
   }
 
-  const { error } = await supabase
+  const { error } = await supabaseAdmin
     .from('app_settings')
     .upsert(
       settings.map(s => ({
