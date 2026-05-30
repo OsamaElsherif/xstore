@@ -102,11 +102,11 @@ export async function resolveOrCreateCustomer(
     try {
       await sendWhatsAppMessage({
         to: data.phone,
-        templateKey: 'whatsapp_template_credentials',
-        parameters: [
-          data.full_name,          // {{1}} Hi {name}
-          data.email || '',        // {{2}} Email: {email}
-          temporaryPassword,       // {{3}} Password: {Jacob-4829-Store}
+        eventKey: 'account_created',
+        variables: [
+          data.full_name,
+          data.email ?? '',
+          temporaryPassword,
         ],
       })
     } catch (waError) {

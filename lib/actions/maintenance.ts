@@ -63,12 +63,12 @@ export async function submitMaintenanceRequest(data: {
     try {
       await sendWhatsAppMessage({
         to: data.customer_phone,
-        templateKey: 'whatsapp_template_maintenance',
-        parameters: [
-          data.customer_name,       // {{1}} Hi {name}
-          request.request_number || '',   // {{2}} Request: {MR-1001}
-          data.device_brand,        // {{3}} Device: {Apple}
-          data.device_type,         // {{4}} Model: {iPhone 13}
+        eventKey: 'maintenance_received',
+        variables: [
+          data.customer_name,
+          request.request_number ?? '',
+          data.device_brand,
+          data.device_type,
         ],
       })
     } catch (waError) {
@@ -175,21 +175,21 @@ export async function updateMaintenanceStatus(
       const notifyStatus = await getSetting('whatsapp_notify_status_update')
       if (notifyStatus === 'true' && request.customer_phone) {
         const statusLabels: Record<string, string> = {
-          IN_PROGRESS:   'قيد الإصلاح',
-          WAITING_PARTS: 'في انتظار القطع',
-          DONE:          'جاهز للاستلام',
-          CANCELLED:     'تم الإلغاء',
+          IN_PROGRESS:   'قيد الإصلاح / In Progress',
+          WAITING_PARTS: 'في انتظار القطع / Waiting for Parts',
+          DONE:          'جاهز للاستلام ✅ / Ready for Pickup',
+          CANCELLED:     'تم الإلغاء ❌ / Cancelled',
         }
 
         try {
           await sendWhatsAppMessage({
             to: request.customer_phone,
-            templateKey: 'whatsapp_template_status',
-            parameters: [
-              request.customer_name,       // {{1}} Hi {name}
-              request.request_number || '',   // {{2}} Request: {MR-1001}
-              statusLabels[status as keyof typeof statusLabels] || status, // {{3}} Status
-              request.customer_notes || '', // {{4}} Note
+            eventKey: 'maintenance_status_update',
+            variables: [
+              request.customer_name,
+              request.request_number ?? '',
+              statusLabels[status] ?? status,
+              request.customer_notes ?? '',
             ],
           })
         } catch (waError) {
@@ -356,12 +356,12 @@ export async function createMaintenanceOnBehalf(data: {
     try {
       await sendWhatsAppMessage({
         to: customer.customer_phone,
-        templateKey: 'whatsapp_template_maintenance',
-        parameters: [
-          customer.customer_name,       // {{1}} Hi {name}
-          (request as MaintenanceRequest).request_number || '',   // {{2}} Request: {MR-1001}
-          data.device_brand,            // {{3}} Device: {Apple}
-          data.device_type,             // {{4}} Model: {iPhone 13}
+        eventKey: 'maintenance_received',
+        variables: [
+          customer.customer_name,
+          (request as MaintenanceRequest).request_number ?? '',
+          data.device_brand,
+          data.device_type,
         ],
       })
     } catch (waError) {

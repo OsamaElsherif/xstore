@@ -1,75 +1,64 @@
 import { getSettings } from '@/lib/actions/settings'
+import { getTemplateByEvent } from '@/lib/actions/whatsapp-templates'
+import { EventKey } from '@/types'
 
-type WhatsAppTemplateMessage = {
-  to: string           // phone number with country code e.g. "201012345678"
-  templateKey:         // which template setting key to read
-    | 'whatsapp_template_order'
-    | 'whatsapp_template_maintenance'
-    | 'whatsapp_template_status'
-    | 'whatsapp_template_credentials'
-  parameters: string[] // ordered list of {{1}}, {{2}} template variables
+type SendWhatsAppOptions = {
+  to: string           // phone number e.g. "201012345678"
+  eventKey: EventKey   // which template to use
+  variables: string[]  // ordered values matching template.variables
+  locale?: 'ar' | 'en' // which language body to use, default 'ar'
 }
 
 export async function sendWhatsAppMessage(
-  msg: WhatsAppTemplateMessage
+  options: SendWhatsAppOptions
 ): Promise<void> {
-  // Read credentials from DB settings
+  // 1. Read Green API credentials from DB settings
   const settings = await getSettings([
-    'whatsapp_phone_number_id',
-    'whatsapp_access_token',
-    'whatsapp_template_language',
-    msg.templateKey,
+    'greenapi_instance_id',
+    'greenapi_api_token',
   ])
 
-  const phoneId = settings.whatsapp_phone_number_id
-  const token = settings.whatsapp_access_token
-  const templateName = settings[msg.templateKey]
-  const language = settings.whatsapp_template_language ?? 'ar'
+  const instanceId = settings.greenapi_instance_id
+  const apiToken = settings.greenapi_api_token
 
   // Silently skip if not configured — never crash the main flow
-  if (!phoneId || !token || !templateName) {
-    console.warn(`WhatsApp not configured — skipping message to ${msg.to}`)
+  if (!instanceId || !apiToken) {
+    console.warn(`Green API not configured — skipping message to ${options.to}`)
     return
   }
 
-  // Sanitize phone number — remove spaces, dashes, leading +
-  const phone = msg.to.replace(/[\s\-+]/g, '')
+  // 2. Fetch the active template for this event
+  const template = await getTemplateByEvent(options.eventKey)
+  if (!template) {
+    console.warn(`No active template found for event: ${options.eventKey}`)
+    return
+  }
 
+  // 3. Build the message body by replacing {0}, {1}, {2}... with variables
+  const bodyTemplate = options.locale === 'en' ? template.body_en : template.body_ar
+  const messageBody = options.variables.reduce(
+    (body, value, index) => body.replaceAll(`{${index}}`, value),
+    bodyTemplate
+  )
+
+  // 4. Format phone number → Green API requires "{countryCode}{number}@c.us"
+  const chatId = options.to.replace(/[\s\-+]/g, '') + '@c.us'
+
+  // 5. Send via Green API sendMessage endpoint
   try {
-    const response = await fetch(
-      `https://graph.facebook.com/v19.0/${phoneId}/messages`,
-      {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          messaging_product: 'whatsapp',
-          to: phone,
-          type: 'template',
-          template: {
-            name: templateName,
-            language: { code: language },
-            components: [
-              {
-                type: 'body',
-                parameters: msg.parameters.map(p => ({
-                  type: 'text',
-                  text: p,
-                })),
-              },
-            ],
-          },
-        }),
-      }
-    )
+    const url = `https://api.green-api.com/waInstance${instanceId}/sendMessage/${apiToken}`
+
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ chatId, message: messageBody }),
+    })
 
     if (!response.ok) {
       const err = await response.json()
-      console.error('WhatsApp send failed:', err.error?.message)
+      console.error('Green API send failed:', err)
     }
   } catch (e) {
-    console.error('WhatsApp network error:', e)
+    console.error('Green API network error:', e)
   }
 }

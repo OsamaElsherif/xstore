@@ -14,7 +14,8 @@ import {
   X,
   Store,
   Settings2,
-  BarChart3
+  BarChart3,
+  MessageSquare
 } from 'lucide-react';
 import { Profile } from '@/types';
 import { signOut } from '@/lib/actions/auth';
@@ -48,6 +49,7 @@ const navItems = [
       { label: 'User Management', href: '/admin/users', icon: Users },
       { label: 'Settings', href: '/admin/settings', icon: Settings2 },
       { label: 'Ads Analytics', href: '/admin/analytics', icon: BarChart3 },
+      { label: 'WhatsApp Templates', href: '/admin/whatsapp-templates', icon: MessageSquare },
     ],
   },
 ];

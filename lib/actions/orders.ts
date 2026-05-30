@@ -110,11 +110,11 @@ export async function createOrder(data: OrderInsertPayload): Promise<{ success: 
     try {
       await sendWhatsAppMessage({
         to: data.customer_phone,
-        templateKey: 'whatsapp_template_order',
-        parameters: [
-          data.customer_name,          // {{1}} Hi {name}
-          order.order_number || '',    // {{2}} Order number: {#1042}
-          String(data.total_price),    // {{3}} Total: {51000}
+        eventKey: 'order_placed',
+        variables: [
+          data.customer_name,
+          order.order_number ?? '',
+          String(data.total_price),
         ],
       })
     } catch (waError) {
@@ -347,11 +347,11 @@ export async function createOrderOnBehalf(data: {
     try {
       await sendWhatsAppMessage({
         to: customer.customer_phone,
-        templateKey: 'whatsapp_template_order',
-        parameters: [
-          customer.customer_name,      // {{1}} Hi {name}
-          order.order_number || '',    // {{2}} Order number: {#1042}
-          String(data.total_price),    // {{3}} Total: {51000}
+        eventKey: 'order_placed',
+        variables: [
+          customer.customer_name,
+          order.order_number ?? '',
+          String(data.total_price),
         ],
       })
     } catch (waError) {

@@ -14,22 +14,18 @@ export type OrderItem = Tables<'order_items'>
 export type Wishlist = Tables<'wishlists'>
 export type MaintenanceRequest = Tables<'maintenance_requests'>
 export type AppSetting = Tables<'app_settings'>
+export type WhatsAppTemplate = Tables<'whatsapp_templates'>
 
 // Typed settings map — used throughout the app
 export type SettingsMap = {
-  // WhatsApp
-  whatsapp_phone_number_id: string
-  whatsapp_access_token: string
-  whatsapp_business_name: string
+  // Green API (replaces Meta WhatsApp Business API)
+  greenapi_instance_id: string
+  greenapi_api_token: string
+  // WhatsApp notification toggles
   whatsapp_notify_orders: string          // 'true' | 'false'
   whatsapp_notify_maintenance: string
   whatsapp_notify_credentials: string
   whatsapp_notify_status_update: string
-  whatsapp_template_order: string
-  whatsapp_template_maintenance: string
-  whatsapp_template_status: string
-  whatsapp_template_credentials: string
-  whatsapp_template_language: string
   // Meta
   meta_access_token: string
   meta_ad_account_id: string
@@ -42,6 +38,13 @@ export type SettingsMap = {
   store_email: string
   store_address: string
 }
+
+// Event keys — match event_key column in whatsapp_templates table
+export type EventKey =
+  | 'order_placed'
+  | 'maintenance_received'
+  | 'maintenance_status_update'
+  | 'account_created'
 
 export type OrderStatus = Enums<'order_status'>    // 'NOT_DONE' | 'UNDER_REPAIR' | 'DONE'
 export type PaymentStatus = Enums<'payment_status'> // 'PAID' | 'UNPAID'
@@ -65,3 +68,4 @@ export type ProductWithRelations = Product & {
   categories: Category | null
   subcategories: Subcategory | null
 }
+

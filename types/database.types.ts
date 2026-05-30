@@ -39,6 +39,42 @@ export type Database = {
   }
   public: {
     Tables: {
+      whatsapp_templates: {
+        Row: {
+          id: string
+          name: string
+          event_key: string
+          body_ar: string
+          body_en: string
+          variables: string[]
+          is_active: boolean | null
+          created_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          id?: string
+          name: string
+          event_key: string
+          body_ar: string
+          body_en: string
+          variables: string[]
+          is_active?: boolean | null
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          id?: string
+          name?: string
+          event_key?: string
+          body_ar?: string
+          body_en?: string
+          variables?: string[]
+          is_active?: boolean | null
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       app_settings: {
         Row: {
           id: string

@@ -1,12 +1,14 @@
+'use server'
+
 import { createClient } from '@/lib/supabase/client'
+import { supabaseAdmin } from '@/lib/supabase/admin'
 import { SettingsMap, AppSetting } from '@/types'
 
 // Get a single setting value by key
 export async function getSetting(
   key: keyof SettingsMap
 ): Promise<string | null> {
-  const supabase = await createClient()
-  const { data } = await supabase
+  const { data } = await supabaseAdmin
     .from('app_settings')
     .select('value')
     .eq('key', key)
@@ -18,11 +20,15 @@ export async function getSetting(
 export async function getSettings(
   keys: (keyof SettingsMap)[]
 ): Promise<Partial<SettingsMap>> {
-  const supabase = await createClient()
-  const { data } = await supabase
+  const { data, error } = await supabaseAdmin
     .from('app_settings')
     .select('key, value')
     .in('key', keys)
+
+  if (error) {
+    console.error('Error fetching settings:', error.message)
+    return {}
+  }
 
   const map: Partial<SettingsMap> = {}
   data?.forEach(row => {
@@ -33,11 +39,15 @@ export async function getSettings(
 
 // Get ALL settings — ADMIN only
 export async function getAllSettings(): Promise<AppSetting[]> {
-  const supabase = await createClient()
-  const { data } = await supabase
+  const { data, error } = await supabaseAdmin
     .from('app_settings')
     .select('*')
     .order('key')
+  
+  if (error) {
+    console.error('Error fetching all settings:', error.message)
+    return []
+  }
   return data ?? []
 }
 
@@ -77,50 +87,7 @@ export async function saveSettings(
   return { success: true }
 }
 
-// Test WhatsApp connection by sending a test message
-export async function testWhatsAppConnection(
-  testPhone: string
-): Promise<{ success: boolean; error?: string }> {
-  const settings = await getSettings([
-    'whatsapp_phone_number_id',
-    'whatsapp_access_token',
-  ])
 
-  if (!settings.whatsapp_phone_number_id || !settings.whatsapp_access_token) {
-    return { success: false, error: 'WhatsApp credentials not configured' }
-  }
-
-  try {
-    const response = await fetch(
-      `https://graph.facebook.com/v19.0/${settings.whatsapp_phone_number_id}/messages`,
-      {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${settings.whatsapp_access_token}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          messaging_product: 'whatsapp',
-          to: testPhone,
-          type: 'template',
-          template: {
-            name: 'hello_world', // Meta's default test template
-            language: { code: 'en_US' },
-          },
-        }),
-      }
-    )
-    if (!response.ok) {
-      const err = await response.json()
-      return { success: false, error: err.error?.message ?? 'Unknown error' }
-    }
-    return { success: true }
-  } catch (e: any) {
-    return { success: false, error: e.message }
-  }
-}
-
-// Test Meta Ads connection
 export async function testMetaConnection(): Promise<{
   success: boolean
   accountName?: string
