@@ -50,7 +50,7 @@ export default function AdminDashboardClient({ initialOrders, userRole }: AdminD
   const filteredOrders = useMemo(() => {
     return orders.filter(o => {
       const matchesSearch = (o.order_number?.toLowerCase().includes(searchQuery.toLowerCase()) ?? false) ||
-                            o.customer_name.toLowerCase().includes(searchQuery.toLowerCase());
+        o.customer_name.toLowerCase().includes(searchQuery.toLowerCase());
       const matchesStatus = statusFilter === "All" || o.status === statusFilter;
       return matchesSearch && matchesStatus;
     });
@@ -73,21 +73,21 @@ export default function AdminDashboardClient({ initialOrders, userRole }: AdminD
           <div className="flex items-center gap-4">
             {userRole === "ADMIN" && (
               <div className="flex items-center gap-3">
-                <Link 
+                <Link
                   href="/admin/categories"
                   className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors shadow-sm"
                 >
                   <Layers size={18} />
                   Manage Categories
                 </Link>
-                <Link 
+                <Link
                   href="/admin/products"
                   className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors shadow-sm"
                 >
                   <ShoppingBag size={18} />
                   Manage Products
                 </Link>
-                <Link 
+                <Link
                   href="/admin/maintenance"
                   className="flex items-center gap-2 px-4 py-2 bg-brand-orange border border-brand-orange rounded-lg text-sm font-bold text-brand-dark hover:bg-brand-orange/90 transition-colors shadow-sm"
                 >
@@ -148,15 +148,15 @@ export default function AdminDashboardClient({ initialOrders, userRole }: AdminD
         <div className="flex flex-col sm:flex-row gap-4 bg-white p-4 rounded-xl shadow-sm border border-gray-100 mb-6">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
-            <input 
-              type="text" 
+            <input
+              type="text"
               placeholder={t('adminSearchPlaceholder')}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
             />
           </div>
-          <select 
+          <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value as any)}
             className="border border-gray-200 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white"
@@ -177,6 +177,7 @@ export default function AdminDashboardClient({ initialOrders, userRole }: AdminD
                 <th className="p-4 font-medium">Customer</th>
                 <th className="p-4 font-medium">Items</th>
                 <th className="p-4 font-medium">Total</th>
+                <th className="p-4 font-medium">Date</th>
                 <th className="p-4 font-medium">Status</th>
                 <th className="p-4 font-medium">Payment</th>
                 {userRole === "ADMIN" && <th className="p-4 font-medium">Actions</th>}
@@ -184,8 +185,8 @@ export default function AdminDashboardClient({ initialOrders, userRole }: AdminD
             </thead>
             <tbody>
               {filteredOrders.map(order => (
-                <tr 
-                  key={order.id} 
+                <tr
+                  key={order.id}
                   className="border-b border-gray-100 hover:bg-gray-50 cursor-pointer group"
                   onClick={() => setSelectedOrder(order)}
                 >
@@ -201,34 +202,33 @@ export default function AdminDashboardClient({ initialOrders, userRole }: AdminD
                   </td>
                   <td className="p-4 font-medium">{t('egp')} {order.total_price.toLocaleString()}</td>
                   <td className="p-4">
-                    <span className={`px-2.5 py-1 rounded-full text-xs font-bold ${
-                      order.status === 'DONE' ? 'bg-green-100 text-green-700' :
+                    <span className={`px-2.5 py-1 rounded-full text-xs font-bold ${order.status === 'DONE' ? 'bg-green-100 text-green-700' :
                       order.status === 'UNDER_REPAIR' ? 'bg-yellow-100 text-yellow-700' :
-                      'bg-red-100 text-red-700'
-                    }`}>
+                        'bg-red-100 text-red-700'
+                      }`}>
                       {t(`status${order.status}` as any)}
                     </span>
                   </td>
+                  <td className="p-4 font-medium">{new Date(order.order_date || '').toLocaleDateString('en-GB')}</td>
                   <td className="p-4">
-                    <span className={`px-2.5 py-1 rounded-full text-xs font-bold ${
-                      order.payment_status === 'PAID' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'
-                    }`}>
+                    <span className={`px-2.5 py-1 rounded-full text-xs font-bold ${order.payment_status === 'PAID' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'
+                      }`}>
                       {t(`payment${order.payment_status}` as any)}
                     </span>
                   </td>
                   <td className="p-4" onClick={(e) => e.stopPropagation()}>
                     <div className="flex items-center gap-2">
-                      <button 
+                      <button
                         onClick={() => setSelectedOrder(order)}
                         className="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
                         title="View Details"
                       >
                         <Eye size={18} />
                       </button>
-                      <OrderActionsMenu 
-                        order={order} 
-                        role={userRole} 
-                        onUpdated={(updates) => handleOrderUpdate(order.id, updates)} 
+                      <OrderActionsMenu
+                        order={order}
+                        role={userRole}
+                        onUpdated={(updates) => handleOrderUpdate(order.id, updates)}
                       />
                     </div>
                   </td>
@@ -239,10 +239,10 @@ export default function AdminDashboardClient({ initialOrders, userRole }: AdminD
         </div>
 
         {/* Order Detail Drawer */}
-        <OrderDetailDrawer 
-          order={selectedOrder} 
-          onClose={() => setSelectedOrder(null)} 
-          role={userRole} 
+        <OrderDetailDrawer
+          order={selectedOrder}
+          onClose={() => setSelectedOrder(null)}
+          role={userRole}
           onUpdated={(updates) => handleOrderUpdate(selectedOrder!.id, updates)}
         />
       </div>

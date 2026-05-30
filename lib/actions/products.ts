@@ -1,7 +1,7 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
-import { Product, Category } from '@/types'
+import { Product, Category, Subcategory } from '@/types'
 import { TablesInsert } from '@/types/database.types'
 import { getCurrentProfile } from './auth'
 import { revalidatePath } from 'next/cache'
@@ -25,6 +25,103 @@ export async function getProducts(categorySlug?: string): Promise<Product[]> {
   }
   
   return data as Product[]
+}
+
+export async function getAllProductsForShop(options?: {
+  categorySlug?: string
+  sortBy?: 'newest' | 'price_asc' | 'price_desc' | 'rating'
+  minPrice?: number
+  maxPrice?: number
+  inStockOnly?: boolean
+  searchQuery?: string
+  page?: number
+  pageSize?: number
+}): Promise<{
+  products: (Product & { categories: Category | null })[]
+  totalCount: number
+  currentPage: number
+  totalPages: number
+}> {
+  const supabase = await createClient()
+  const page = options?.page ?? 1
+  const pageSize = options?.pageSize ?? 12
+  const from = (page - 1) * pageSize
+  const to = from + pageSize - 1
+
+  // If filtering by category slug, resolve to category ID first
+  let categoryId: string | undefined
+  if (options?.categorySlug) {
+    const { data: cat } = await supabase
+      .from('categories')
+      .select('id')
+      .eq('slug', options.categorySlug)
+      .single()
+    if (cat) categoryId = cat.id
+  }
+
+  let query = supabase
+    .from('products')
+    .select('*, categories(*)', { count: 'exact' })
+
+  if (categoryId) {
+    query = query.eq('category_id', categoryId)
+  }
+
+  // Search
+  if (options?.searchQuery) {
+    const q = options.searchQuery
+    query = query.or(`name_en.ilike.%${q}%,name_ar.ilike.%${q}%`)
+  }
+
+  // Price range
+  if (options?.minPrice !== undefined) {
+    query = query.gte('price', options.minPrice)
+  }
+  if (options?.maxPrice !== undefined) {
+    query = query.lte('price', options.maxPrice)
+  }
+
+  // In stock only (skip for services)
+  if (options?.inStockOnly) {
+    query = query.or('stock_quantity.gt.0,is_service.eq.true')
+  }
+
+  // Sort
+  switch (options?.sortBy) {
+    case 'price_asc':
+      query = query.order('price', { ascending: true })
+      break
+    case 'price_desc':
+      query = query.order('price', { ascending: false })
+      break
+    case 'rating':
+      query = query.order('rating', { ascending: false })
+      break
+    case 'newest':
+    default:
+      query = query.order('created_at', { ascending: false })
+      break
+  }
+
+  // Pagination
+  query = query.range(from, to)
+
+  const { data, error, count } = await query
+
+  if (error) {
+    console.error('Error fetching shop products:', error)
+    return { products: [], totalCount: 0, currentPage: page, totalPages: 0 }
+  }
+
+  const totalCount = count ?? 0
+  const totalPages = Math.ceil(totalCount / pageSize)
+
+  return {
+    products: (data ?? []) as (Product & { categories: Category | null })[],
+    totalCount,
+    currentPage: page,
+    totalPages,
+  }
 }
 
 export async function getProductById(id: string): Promise<(Product & { categories: Category | null }) | null> {
@@ -63,6 +160,7 @@ export async function getRelatedProducts(categoryId: string, excludeProductId: s
 export async function getProductsByCategory(
   categorySlug: string,
   options?: {
+    subcategorySlug?: string
     sortBy?: 'price_asc' | 'price_desc' | 'rating' | 'newest'
     minPrice?: number
     maxPrice?: number
@@ -71,6 +169,7 @@ export async function getProductsByCategory(
 ): Promise<{
   products: Product[]
   category: Category | null
+  subcategory: Subcategory | null
 }> {
   const supabase = await createClient()
 
@@ -82,14 +181,35 @@ export async function getProductsByCategory(
     .single()
 
   if (catError || !category) {
-    return { products: [], category: null }
+    return { products: [], category: null, subcategory: null }
   }
 
-  // 2. Get products
+  // 2. If subcategory slug provided, resolve it
+  let subcategory: Subcategory | null = null
+  if (options?.subcategorySlug) {
+    const { data: subcat } = await supabase
+      .from('subcategories')
+      .select('*')
+      .eq('category_id', category.id)
+      .eq('slug', options.subcategorySlug)
+      .single()
+
+    if (!subcat) {
+      return { products: [], category: category as Category, subcategory: null }
+    }
+    subcategory = subcat as Subcategory
+  }
+
+  // 3. Get products
   let query = supabase
     .from('products')
     .select('*')
     .eq('category_id', category.id)
+
+  // Filter by subcategory if provided
+  if (subcategory) {
+    query = query.eq('subcategory_id', subcategory.id)
+  }
 
   if (options?.minPrice) query = query.gte('price', options.minPrice)
   if (options?.maxPrice) query = query.lte('price', options.maxPrice)
@@ -107,10 +227,10 @@ export async function getProductsByCategory(
 
   if (prodError) {
     console.error('Error fetching products by category:', prodError)
-    return { products: [], category: category as Category }
+    return { products: [], category: category as Category, subcategory }
   }
 
-  return { products: products as Product[], category: category as Category }
+  return { products: products as Product[], category: category as Category, subcategory }
 }
 
 export async function searchProducts(

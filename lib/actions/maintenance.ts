@@ -4,6 +4,9 @@ import { createClient } from '@/lib/supabase/server'
 import { MaintenanceRequest, MaintenanceStatus } from '@/types'
 import { getCurrentProfile } from './auth'
 import { revalidatePath } from 'next/cache'
+import { sendMaintenanceConfirmationEmail, sendMaintenanceStatusUpdateEmail } from '@/lib/email/sendEmail'
+import { sendWhatsAppMessage } from '@/lib/whatsapp/sendWhatsApp'
+import { getSetting } from '@/lib/actions/settings'
 
 // Submit a new maintenance request (public)
 export async function submitMaintenanceRequest(data: {
@@ -36,6 +39,41 @@ export async function submitMaintenanceRequest(data: {
   if (error) {
     console.error('Error submitting maintenance request:', error)
     return { success: false, error: error.message }
+  }
+
+  // Send maintenance confirmation email
+  if (data.customer_email) {
+    try {
+      await sendMaintenanceConfirmationEmail({
+        to: data.customer_email,
+        customerName: data.customer_name,
+        requestNumber: (request as MaintenanceRequest).request_number ?? '',
+        deviceBrand: data.device_brand,
+        deviceType: data.device_type,
+        issueDescription: data.issue_description,
+      })
+    } catch (emailError) {
+      console.error('Maintenance confirmation email failed:', emailError)
+    }
+  }
+
+  // Send WhatsApp notification
+  const notifyMaintenance = await getSetting('whatsapp_notify_maintenance')
+  if (notifyMaintenance === 'true' && data.customer_phone) {
+    try {
+      await sendWhatsAppMessage({
+        to: data.customer_phone,
+        templateKey: 'whatsapp_template_maintenance',
+        parameters: [
+          data.customer_name,       // {{1}} Hi {name}
+          request.request_number || '',   // {{2}} Request: {MR-1001}
+          data.device_brand,        // {{3}} Device: {Apple}
+          data.device_type,         // {{4}} Model: {iPhone 13}
+        ],
+      })
+    } catch (waError) {
+      console.error('Maintenance WhatsApp notification failed:', waError)
+    }
   }
 
   return { success: true, request: request as MaintenanceRequest }
@@ -93,7 +131,7 @@ export async function updateMaintenanceStatus(
 
   const supabase = await createClient()
   const updates: any = { status }
-  
+
   if (status === 'DONE') {
     updates.completed_at = new Date().toISOString()
   }
@@ -104,7 +142,63 @@ export async function updateMaintenanceStatus(
     .eq('id', id)
 
   if (error) return { success: false, error: error.message }
-  
+
+  // Status trigger logic
+  const emailTriggerStatuses: MaintenanceStatus[] = ['IN_PROGRESS', 'WAITING_PARTS', 'DONE', 'CANCELLED']
+
+  if (emailTriggerStatuses.includes(status)) {
+    const { data: request } = await supabase
+      .from('maintenance_requests')
+      .select('customer_email, customer_phone, customer_name, request_number, customer_notes, estimated_cost, actual_cost')
+      .eq('id', id)
+      .single()
+
+    if (request) {
+      // 1. Send Email
+      if (request.customer_email) {
+        try {
+          await sendMaintenanceStatusUpdateEmail({
+            to: request.customer_email,
+            customerName: request.customer_name,
+            requestNumber: request.request_number ?? '',
+            newStatus: status,
+            customerNotes: request.customer_notes,
+            estimatedCost: request.estimated_cost,
+            actualCost: request.actual_cost,
+          })
+        } catch (emailError) {
+          console.error('Status update email failed:', emailError)
+        }
+      }
+
+      // 2. Send WhatsApp
+      const notifyStatus = await getSetting('whatsapp_notify_status_update')
+      if (notifyStatus === 'true' && request.customer_phone) {
+        const statusLabels: Record<string, string> = {
+          IN_PROGRESS:   'قيد الإصلاح',
+          WAITING_PARTS: 'في انتظار القطع',
+          DONE:          'جاهز للاستلام',
+          CANCELLED:     'تم الإلغاء',
+        }
+
+        try {
+          await sendWhatsAppMessage({
+            to: request.customer_phone,
+            templateKey: 'whatsapp_template_status',
+            parameters: [
+              request.customer_name,       // {{1}} Hi {name}
+              request.request_number || '',   // {{2}} Request: {MR-1001}
+              statusLabels[status as keyof typeof statusLabels] || status, // {{3}} Status
+              request.customer_notes || '', // {{4}} Note
+            ],
+          })
+        } catch (waError) {
+          console.error('Maintenance status WhatsApp notification failed:', waError)
+        }
+      }
+    }
+  }
+
   revalidatePath('/admin/maintenance')
   return { success: true }
 }
@@ -126,7 +220,7 @@ export async function updateMaintenanceCost(
     .eq('id', id)
 
   if (error) return { success: false, error: error.message }
-  
+
   revalidatePath('/admin/maintenance')
   return { success: true }
 }
@@ -152,7 +246,7 @@ export async function updateMaintenanceDetails(
     .eq('id', id)
 
   if (error) return { success: false, error: error.message }
-  
+
   revalidatePath('/admin/maintenance')
   return { success: true }
 }
@@ -174,7 +268,112 @@ export async function updateMaintenancePayment(
     .eq('id', id)
 
   if (error) return { success: false, error: error.message }
-  
+
   revalidatePath('/admin/maintenance')
   return { success: true }
+}
+
+export async function createMaintenanceOnBehalf(data: {
+  customer_full_name: string
+  customer_phone: string
+  customer_email?: string
+  device_brand: string
+  device_type: string
+  issue_description: string
+  estimated_cost?: number
+  assigned_to?: string
+  admin_notes?: string
+  initial_status?: MaintenanceStatus
+}): Promise<{
+  success: boolean
+  request?: MaintenanceRequest
+  newAccountCreated?: boolean
+  temporaryPassword?: string
+  error?: string
+}> {
+  // 1. Verify caller is ADMIN or CASHIER
+  const callerProfile = await getCurrentProfile()
+  if (!callerProfile || !['ADMIN', 'CASHIER', 'ORDER_RECEIVER'].includes(callerProfile.role)) {
+    return { success: false, error: 'Unauthorized' }
+  }
+
+  // 2. Resolve or create the customer
+  const { resolveOrCreateCustomer } = await import('@/lib/actions/customers')
+  const customerResult = await resolveOrCreateCustomer({
+    full_name: data.customer_full_name,
+    phone: data.customer_phone,
+    email: data.customer_email,
+  })
+
+  if (!customerResult.success || !customerResult.customer) {
+    return { success: false, error: customerResult.error ?? 'Failed to resolve customer' }
+  }
+
+  const customer = customerResult.customer
+  const supabase = await createClient()
+
+  // 3. Insert into maintenance_requests
+  const { data: request, error: insertError } = await supabase
+    .from('maintenance_requests')
+    .insert({
+      customer_name: customer.customer_name,
+      customer_phone: customer.customer_phone,
+      customer_email: customer.customer_email,
+      device_brand: data.device_brand,
+      device_type: data.device_type,
+      issue_description: data.issue_description,
+      user_id: customer.user_id,
+      status: data.initial_status ?? 'PENDING',
+      payment_status: 'UNPAID',
+      estimated_cost: data.estimated_cost,
+      assigned_to: data.assigned_to,
+      admin_notes: data.admin_notes
+    })
+    .select()
+    .single()
+
+  if (insertError) return { success: false, error: insertError.message }
+
+  // 4. Send maintenance confirmation email if customer_email exists
+  if (customer.customer_email) {
+    try {
+      await sendMaintenanceConfirmationEmail({
+        to: customer.customer_email,
+        customerName: customer.customer_name,
+        requestNumber: (request as MaintenanceRequest).request_number ?? '',
+        deviceBrand: data.device_brand,
+        deviceType: data.device_type,
+        issueDescription: data.issue_description,
+      })
+    } catch (emailError) {
+      console.error('Maintenance confirmation email failed:', emailError)
+    }
+  }
+
+  // 5. Send WhatsApp notification
+  const notifyMaintenance = await getSetting('whatsapp_notify_maintenance')
+  if (notifyMaintenance === 'true' && customer.customer_phone) {
+    try {
+      await sendWhatsAppMessage({
+        to: customer.customer_phone,
+        templateKey: 'whatsapp_template_maintenance',
+        parameters: [
+          customer.customer_name,       // {{1}} Hi {name}
+          (request as MaintenanceRequest).request_number || '',   // {{2}} Request: {MR-1001}
+          data.device_brand,            // {{3}} Device: {Apple}
+          data.device_type,             // {{4}} Model: {iPhone 13}
+        ],
+      })
+    } catch (waError) {
+      console.error('Maintenance WhatsApp notification failed:', waError)
+    }
+  }
+
+  revalidatePath('/admin/maintenance')
+  return {
+    success: true,
+    request: request as MaintenanceRequest,
+    newAccountCreated: customer.isNewAccount,
+    temporaryPassword: customer.temporaryPassword
+  }
 }

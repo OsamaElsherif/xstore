@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { ArrowLeft, CheckCircle2, ShoppingBag, AlertCircle } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, ShoppingBag, AlertCircle, Minus, Plus, X } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { useCart } from '@/contexts/CartContext';
@@ -14,7 +14,7 @@ import { useRouter } from 'next/navigation';
 import { getProductImageUrl } from '@/lib/supabase/storage';
 
 export default function Checkout() {
-  const { items, cartTotal, clearCart } = useCart();
+  const { items, cartTotal, clearCart, updateQuantity, removeFromCart } = useCart();
   const { t, language } = useLanguage();
   const { user } = useAuth();
   const router = useRouter();
@@ -226,12 +226,39 @@ export default function Checkout() {
                       )}
                     </div>
                     <div className="flex-1">
-                      <h4 className="font-bold text-brand-dark text-sm line-clamp-2">
-                        {language === 'ar' ? item.name_ar : item.name_en}
-                      </h4>
-                      <p className="text-brand-gray text-sm mt-1">Qty: {item.quantity}</p>
+                      <div className="flex justify-between items-start gap-2">
+                        <h4 className="font-bold text-brand-dark text-sm line-clamp-2">
+                          {language === 'ar' ? item.name_ar : item.name_en}
+                        </h4>
+                        <button 
+                          onClick={() => removeFromCart(item.id)}
+                          className="text-brand-gray hover:text-red-500 transition-colors"
+                        >
+                          <X size={14} />
+                        </button>
+                      </div>
+                      
+                      <div className="flex items-center gap-3 mt-2">
+                        <div className="flex items-center border border-brand-gray/30 rounded-lg overflow-hidden bg-brand-light/50">
+                          <button 
+                            onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                            className="px-1.5 py-0.5 hover:bg-brand-gray/20 transition-colors"
+                          >
+                            <Minus size={12} />
+                          </button>
+                          <span className="px-2 py-0.5 text-xs font-medium text-brand-dark min-w-[1.5rem] text-center">
+                            {item.quantity}
+                          </span>
+                          <button 
+                            onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                            className="px-1.5 py-0.5 hover:bg-brand-gray/20 transition-colors"
+                          >
+                            <Plus size={12} />
+                          </button>
+                        </div>
+                      </div>
                     </div>
-                    <div className="font-bold text-brand-dark text-sm">
+                    <div className="font-bold text-brand-dark text-sm whitespace-nowrap">
                       {t('egp')} {(item.price * item.quantity).toLocaleString()}
                     </div>
                   </div>

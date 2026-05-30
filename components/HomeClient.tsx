@@ -41,6 +41,7 @@ export default function HomeClient({ featuredProducts, categories }: HomeClientP
             subtitleKey="mobilePhonesDesc"
             products={featuredProducts.phones}
             viewAllTextKey="viewAllPhones"
+            categorySlug="phones"
           />
           <FeaturedProducts 
             id="phone-accessories"
@@ -48,6 +49,7 @@ export default function HomeClient({ featuredProducts, categories }: HomeClientP
             subtitleKey="phoneAccessoriesDesc"
             products={featuredProducts.accessories}
             viewAllTextKey="viewAllAccessories"
+            categorySlug="accessories"
           />
           <FeaturedProducts 
             id="vape-accessories"
@@ -55,6 +57,7 @@ export default function HomeClient({ featuredProducts, categories }: HomeClientP
             subtitleKey="vapeAccessoriesDesc"
             products={featuredProducts.vapes}
             viewAllTextKey="viewAllVape"
+            categorySlug="vapes"
           />
         </div>
       </div>

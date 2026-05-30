@@ -1,9 +1,10 @@
 'use client'
 
-import { useState } from 'react'
-import { Product, Category } from '@/types'
+import { useState, useEffect } from 'react'
+import { Product, Category, Subcategory } from '@/types'
 import { X, Save, AlertCircle } from 'lucide-react'
 import { updateProduct } from '@/lib/actions/products'
+import { getSubcategoriesByCategory } from '@/lib/actions/subcategories'
 import ImageUploader from './ImageUploader'
 import { uploadProductImage } from '@/lib/supabase/storage'
 
@@ -21,6 +22,7 @@ export default function EditProductModal({ product, categories, onClose, onUpdat
     description_en: product.description_en || '',
     description_ar: product.description_ar || '',
     category_id: product.category_id,
+    subcategory_id: product.subcategory_id || '' as string,
     price: product.price,
     stock_quantity: product.stock_quantity,
     badge: product.badge || '',
@@ -29,6 +31,20 @@ export default function EditProductModal({ product, categories, onClose, onUpdat
   const [imageFile, setImageFile] = useState<File | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [subcategories, setSubcategories] = useState<Subcategory[]>([])
+
+  // Fetch subcategories when category changes
+  useEffect(() => {
+    if (formData.category_id) {
+      getSubcategoriesByCategory(formData.category_id).then(setSubcategories)
+    } else {
+      setSubcategories([])
+    }
+    // Only reset subcategory if category actually changed from the original
+    if (formData.category_id !== product.category_id) {
+      setFormData(prev => ({ ...prev, subcategory_id: '' }))
+    }
+  }, [formData.category_id, product.category_id])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -46,6 +62,7 @@ export default function EditProductModal({ product, categories, onClose, onUpdat
       // 2. Update product
       const result = await updateProduct(product.id, {
         ...formData,
+        subcategory_id: formData.subcategory_id || null,
         image_url,
       })
 
@@ -123,6 +140,22 @@ export default function EditProductModal({ product, categories, onClose, onUpdat
                   ))}
                 </select>
               </div>
+
+              {subcategories.length > 0 && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Subcategory</label>
+                  <select 
+                    value={formData.subcategory_id}
+                    onChange={e => setFormData({...formData, subcategory_id: e.target.value})}
+                    className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none bg-white"
+                  >
+                    <option value="">None (No Subcategory)</option>
+                    {subcategories.map(s => (
+                      <option key={s.id} value={s.id}>{s.name_en}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
 
               <div className="grid grid-cols-2 gap-4">
                 <div>

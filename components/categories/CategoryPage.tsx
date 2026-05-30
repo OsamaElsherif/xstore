@@ -3,21 +3,23 @@
 import { useState, useMemo } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { ShoppingCart, Star, Filter, ArrowUpDown, PackageX, Search } from 'lucide-react';
+import { ShoppingCart, Star, Filter, ArrowUpDown, PackageX, Search, ChevronRight, Home, Grid3X3 } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useCart } from '@/contexts/CartContext';
-import { Product, Category } from '@/types';
+import { Product, Category, Subcategory } from '@/types';
 import { getProductImageUrl } from '@/lib/supabase/storage';
 import WishlistButton from '../products/WishlistButton';
 
 interface CategoryPageProps {
   initialProducts: Product[];
   category: Category;
+  subcategory?: Subcategory;
+  subcategories?: Subcategory[];
 }
 
 type SortOption = 'newest' | 'price_asc' | 'price_desc' | 'rating';
 
-export default function CategoryPage({ initialProducts, category }: CategoryPageProps) {
+export default function CategoryPage({ initialProducts, category, subcategory, subcategories }: CategoryPageProps) {
   const [products, setProducts] = useState(initialProducts);
   const [sortBy, setSortBy] = useState<SortOption>('newest');
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 100000]);
@@ -27,7 +29,9 @@ export default function CategoryPage({ initialProducts, category }: CategoryPage
   const { t, language } = useLanguage();
   const { addToCart } = useCart();
 
-  const name = language === 'ar' ? category.name_ar : category.name_en;
+  const categoryName = language === 'ar' ? category.name_ar : category.name_en;
+  const subcategoryName = subcategory ? (language === 'ar' ? subcategory.name_ar : subcategory.name_en) : null;
+  const pageName = subcategoryName || categoryName;
 
   const filteredAndSortedProducts = useMemo(() => {
     let result = [...initialProducts];
@@ -63,21 +67,81 @@ export default function CategoryPage({ initialProducts, category }: CategoryPage
 
   return (
     <div className="space-y-12">
+      {/* Breadcrumb */}
+      <nav className="flex items-center gap-2 text-sm text-brand-dark/50 font-medium">
+        <Link href="/" className="hover:text-brand-orange transition-colors flex items-center gap-1">
+          <Home size={14} />
+          Home
+        </Link>
+        <ChevronRight size={14} />
+        {subcategory ? (
+          <>
+            <Link href={`/categories/${category.slug}`} className="hover:text-brand-orange transition-colors">
+              {categoryName}
+            </Link>
+            <ChevronRight size={14} />
+            <span className="text-brand-dark font-bold">{subcategoryName}</span>
+          </>
+        ) : (
+          <span className="text-brand-dark font-bold">{categoryName}</span>
+        )}
+      </nav>
+
       {/* Banner */}
       <div className="relative h-64 md:h-80 rounded-3xl overflow-hidden bg-brand-dark">
         <Image 
-          src={getProductImageUrl(category.image_url) || '/placeholder-category.png'}
-          alt={name}
+          src={getProductImageUrl(subcategory?.image_url || category.image_url) || '/placeholder-category.png'}
+          alt={pageName}
           fill
           className="object-cover opacity-60"
         />
         <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-6">
-          <h1 className="text-4xl md:text-5xl font-display font-bold text-white mb-4">{name}</h1>
+          <h1 className="text-4xl md:text-5xl font-display font-bold text-white mb-4">{pageName}</h1>
           <p className="text-brand-light/80 max-w-xl text-lg">
-            Explore our curated collection of {name.toLowerCase()} and find the perfect match for your needs.
+            Explore our curated collection of {pageName.toLowerCase()} and find the perfect match for your needs.
           </p>
         </div>
       </div>
+
+      {/* Subcategory Strip — only on parent category page */}
+      {!subcategory && subcategories && subcategories.length > 0 && (
+        <div className="space-y-4">
+          <h2 className="text-lg font-bold text-brand-dark flex items-center gap-2">
+            <Grid3X3 size={20} className="text-brand-orange" />
+            Browse by Brand
+          </h2>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+            {subcategories.map((sub) => {
+              const subName = language === 'ar' ? sub.name_ar : sub.name_en;
+              const subProductCount = initialProducts.filter(p => p.subcategory_id === sub.id).length;
+              return (
+                <Link
+                  key={sub.id}
+                  href={`/categories/${category.slug}/${sub.slug}`}
+                  className="group bg-white rounded-2xl border border-brand-gray/10 p-5 flex flex-col items-center text-center hover:shadow-xl hover:shadow-brand-dark/5 hover:border-brand-orange/20 transition-all duration-300"
+                >
+                  <div className="relative w-16 h-16 rounded-2xl bg-brand-light/50 overflow-hidden mb-3 group-hover:scale-110 transition-transform">
+                    {sub.image_url ? (
+                      <Image
+                        src={getProductImageUrl(sub.image_url) || ''}
+                        alt={subName}
+                        fill
+                        className="object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-brand-orange text-2xl font-black">
+                        {subName.charAt(0)}
+                      </div>
+                    )}
+                  </div>
+                  <p className="text-sm font-bold text-brand-dark group-hover:text-brand-orange transition-colors">{subName}</p>
+                  <p className="text-[10px] text-brand-dark/40 font-bold mt-1">({subProductCount})</p>
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       <div className="flex flex-col lg:flex-row gap-12">
         {/* Sidebar Filters */}
@@ -88,6 +152,66 @@ export default function CategoryPage({ initialProducts, category }: CategoryPage
             </h3>
             
             <div className="space-y-6 bg-white p-6 rounded-2xl border border-brand-gray/10 shadow-sm">
+              {/* Subcategory Links in Sidebar — on parent category page */}
+              {!subcategory && subcategories && subcategories.length > 0 && (
+                <div className="space-y-3">
+                  <label className="text-sm font-bold text-brand-dark/60 uppercase tracking-wider">Filter by Brand</label>
+                  <div className="space-y-1">
+                    <Link 
+                      href={`/categories/${category.slug}`}
+                      className="block px-3 py-2 rounded-xl text-sm font-bold text-brand-orange bg-brand-orange/10"
+                    >
+                      All ({initialProducts.length})
+                    </Link>
+                    {subcategories.map(sub => {
+                      const subName = language === 'ar' ? sub.name_ar : sub.name_en;
+                      const count = initialProducts.filter(p => p.subcategory_id === sub.id).length;
+                      return (
+                        <Link
+                          key={sub.id}
+                          href={`/categories/${category.slug}/${sub.slug}`}
+                          className="block px-3 py-2 rounded-xl text-sm font-medium text-brand-dark/60 hover:text-brand-orange hover:bg-brand-orange/5 transition-colors"
+                        >
+                          {subName} ({count})
+                        </Link>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* Subcategory sidebar — when on a subcategory page, show siblings */}
+              {subcategory && subcategories && subcategories.length > 0 && (
+                <div className="space-y-3">
+                  <label className="text-sm font-bold text-brand-dark/60 uppercase tracking-wider">Filter by Brand</label>
+                  <div className="space-y-1">
+                    <Link 
+                      href={`/categories/${category.slug}`}
+                      className="block px-3 py-2 rounded-xl text-sm font-medium text-brand-dark/60 hover:text-brand-orange hover:bg-brand-orange/5 transition-colors"
+                    >
+                      All
+                    </Link>
+                    {subcategories.map(sub => {
+                      const subName = language === 'ar' ? sub.name_ar : sub.name_en;
+                      const isActive = sub.id === subcategory.id;
+                      return (
+                        <Link
+                          key={sub.id}
+                          href={`/categories/${category.slug}/${sub.slug}`}
+                          className={`block px-3 py-2 rounded-xl text-sm font-bold transition-colors ${
+                            isActive 
+                              ? 'text-brand-orange bg-brand-orange/10' 
+                              : 'text-brand-dark/60 hover:text-brand-orange hover:bg-brand-orange/5'
+                          }`}
+                        >
+                          {subName}
+                        </Link>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
               {/* Search within category */}
               <div className="space-y-3">
                 <label className="text-sm font-bold text-brand-dark/60 uppercase tracking-wider">Search</label>

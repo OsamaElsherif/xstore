@@ -15,9 +15,10 @@ interface FeaturedProductsProps {
   subtitleKey: string;
   products: Product[];
   viewAllTextKey: string;
+  categorySlug?: string;
 }
 
-export default function FeaturedProducts({ id, titleKey, subtitleKey, products, viewAllTextKey }: FeaturedProductsProps) {
+export default function FeaturedProducts({ id, titleKey, subtitleKey, products, viewAllTextKey, categorySlug }: FeaturedProductsProps) {
   const { t, language } = useLanguage();
   const { addToCart } = useCart();
 
@@ -33,7 +34,7 @@ export default function FeaturedProducts({ id, titleKey, subtitleKey, products, 
           </p>
         </div>
         <Link 
-          href={products[0]?.category_id ? `/categories/${products[0].category_id}` : '/products'}
+          href={categorySlug ? `/shop?category=${categorySlug}` : '/shop'}
           className="hidden sm:flex items-center gap-2 text-brand-orange font-bold hover:underline"
         >
           {t(viewAllTextKey as any)}
@@ -98,9 +99,12 @@ export default function FeaturedProducts({ id, titleKey, subtitleKey, products, 
       </div>
       
       <div className="mt-10 text-center md:text-start">
-        <button className="inline-flex items-center justify-center px-8 py-3 border-2 border-brand-dark text-brand-dark font-bold rounded-full hover:bg-brand-dark hover:text-brand-light transition-colors">
+        <Link 
+          href={categorySlug ? `/shop?category=${categorySlug}` : '/shop'}
+          className="inline-flex items-center justify-center px-8 py-3 border-2 border-brand-dark text-brand-dark font-bold rounded-full hover:bg-brand-dark hover:text-brand-light transition-colors"
+        >
           {t(viewAllTextKey as any)}
-        </button>
+        </Link>
       </div>
     </section>
   );

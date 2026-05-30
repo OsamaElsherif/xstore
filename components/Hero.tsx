@@ -1,6 +1,7 @@
 'use client';
 
 import Image from 'next/image';
+import Link from 'next/link';
 import { ArrowRight, ArrowLeft } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 
@@ -28,10 +29,10 @@ export default function Hero() {
               {t('heroDesc')}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 pt-4">
-              <button className="bg-brand-orange text-brand-dark px-8 py-4 rounded-full font-semibold hover:bg-opacity-90 transition-all flex items-center justify-center gap-2 group">
+              <Link href="/shop" className="bg-brand-orange text-brand-dark px-8 py-4 rounded-full font-semibold hover:bg-opacity-90 transition-all flex items-center justify-center gap-2 group">
                 {t('shopNow')}
                 <ArrowIcon size={18} className="ltr:group-hover:translate-x-1 rtl:group-hover:-translate-x-1 transition-transform" />
-              </button>
+              </Link>
               <button className="bg-transparent border border-brand-gray/30 text-brand-light px-8 py-4 rounded-full font-semibold hover:bg-brand-gray/10 transition-all">
                 {t('viewLookbook')}
               </button>

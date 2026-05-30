@@ -36,12 +36,12 @@ export default function OrderDetailDrawer({ order, onClose, role, onUpdated }: O
     setIsSubmitting(true);
     try {
       const updates: Partial<Order> = {};
-      
+
       if (status !== order.status) {
         await updateOrderStatus(order.id, status);
         updates.status = status;
       }
-      
+
       if (paymentStatus !== order.payment_status) {
         await updatePaymentStatus(order.id, paymentStatus);
         updates.payment_status = paymentStatus;
@@ -73,18 +73,18 @@ export default function OrderDetailDrawer({ order, onClose, role, onUpdated }: O
   return (
     <>
       {/* Overlay */}
-      <div 
+      <div
         className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[60] transition-opacity"
         onClick={onClose}
       />
-      
+
       {/* Drawer */}
       <div className="fixed inset-y-0 right-0 w-full max-w-lg bg-white z-[70] shadow-2xl flex flex-col animate-in slide-in-from-right duration-300">
         {/* Header */}
         <div className="p-6 border-b border-gray-100 flex items-center justify-between">
           <div>
             <h2 className="text-2xl font-bold text-gray-800">Order {order.order_number}</h2>
-            <p className="text-sm text-gray-500">{new Date(order.order_date || '').toLocaleDateString()}</p>
+            <p className="text-sm text-gray-500">{new Date(order.order_date || '').toLocaleDateString('en-GB')}</p>
           </div>
           <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-full transition-colors">
             <X size={24} className="text-gray-500" />
@@ -143,12 +143,12 @@ export default function OrderDetailDrawer({ order, onClose, role, onUpdated }: O
           {/* Management */}
           <section className="space-y-6">
             <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider">Management</h3>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {(isAdmin || isOrderReceiver) && (
                 <div className="space-y-2">
                   <label className="text-xs font-bold text-gray-500">Status</label>
-                  <select 
+                  <select
                     value={status}
                     onChange={(e) => setStatus(e.target.value as OrderStatus)}
                     className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none"
@@ -163,7 +163,7 @@ export default function OrderDetailDrawer({ order, onClose, role, onUpdated }: O
               {(isAdmin || isCashier) && (
                 <div className="space-y-2">
                   <label className="text-xs font-bold text-gray-500">Payment</label>
-                  <select 
+                  <select
                     value={paymentStatus}
                     onChange={(e) => setPaymentStatus(e.target.value as PaymentStatus)}
                     className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none"
@@ -180,8 +180,8 @@ export default function OrderDetailDrawer({ order, onClose, role, onUpdated }: O
                 <label className="text-xs font-bold text-gray-500 flex items-center gap-2">
                   <Calendar size={14} /> Delivery Date
                 </label>
-                <input 
-                  type="date" 
+                <input
+                  type="date"
                   value={deliveryDate.split('T')[0]}
                   onChange={(e) => setDeliveryDate(e.target.value)}
                   className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none"
@@ -194,7 +194,7 @@ export default function OrderDetailDrawer({ order, onClose, role, onUpdated }: O
                 <label className="text-xs font-bold text-gray-500 flex items-center gap-2">
                   <FileText size={14} /> Notes
                 </label>
-                <textarea 
+                <textarea
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
                   rows={4}
@@ -208,13 +208,13 @@ export default function OrderDetailDrawer({ order, onClose, role, onUpdated }: O
 
         {/* Footer */}
         <div className="p-6 border-t border-gray-100 flex gap-3">
-          <button 
+          <button
             onClick={onClose}
             className="flex-1 px-6 py-3 border border-gray-200 text-gray-600 font-bold rounded-xl hover:bg-gray-50 transition-colors"
           >
             Cancel
           </button>
-          <button 
+          <button
             disabled={isSaving}
             onClick={handleSave}
             className="flex-1 px-6 py-3 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 transition-colors flex items-center justify-center gap-2 disabled:opacity-50"

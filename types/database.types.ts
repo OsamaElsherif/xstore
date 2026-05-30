@@ -39,6 +39,33 @@ export type Database = {
   }
   public: {
     Tables: {
+      app_settings: {
+        Row: {
+          id: string
+          key: string
+          value: string | null
+          is_secret: boolean | null
+          updated_at: string | null
+          updated_by: string | null
+        }
+        Insert: {
+          id?: string
+          key: string
+          value?: string | null
+          is_secret?: boolean | null
+          updated_at?: string | null
+          updated_by?: string | null
+        }
+        Update: {
+          id?: string
+          key?: string
+          value?: string | null
+          is_secret?: boolean | null
+          updated_at?: string | null
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       categories: {
         Row: {
           id: string
@@ -254,6 +281,7 @@ export type Database = {
           rating: number | null
           reviews_count: number | null
           stock_quantity: number | null
+          subcategory_id: string | null
         }
         Insert: {
           badge?: string | null
@@ -270,6 +298,7 @@ export type Database = {
           rating?: number | null
           reviews_count?: number | null
           stock_quantity?: number | null
+          subcategory_id?: string | null
         }
         Update: {
           badge?: string | null
@@ -286,10 +315,56 @@ export type Database = {
           rating?: number | null
           reviews_count?: number | null
           stock_quantity?: number | null
+          subcategory_id?: string | null
         }
         Relationships: [
           {
             foreignKeyName: "products_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "products_subcategory_id_fkey"
+            columns: ["subcategory_id"]
+            isOneToOne: false
+            referencedRelation: "subcategories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      subcategories: {
+        Row: {
+          id: string
+          category_id: string
+          name_en: string
+          name_ar: string
+          slug: string
+          image_url: string | null
+          created_at: string | null
+        }
+        Insert: {
+          id?: string
+          category_id: string
+          name_en: string
+          name_ar: string
+          slug: string
+          image_url?: string | null
+          created_at?: string | null
+        }
+        Update: {
+          id?: string
+          category_id?: string
+          name_en?: string
+          name_ar?: string
+          slug?: string
+          image_url?: string | null
+          created_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subcategories_category_id_fkey"
             columns: ["category_id"]
             isOneToOne: false
             referencedRelation: "categories"

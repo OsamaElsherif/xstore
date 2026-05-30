@@ -1,9 +1,10 @@
 'use client'
 
-import { useState } from 'react'
-import { Category, Product } from '@/types'
+import { useState, useEffect } from 'react'
+import { Category, Product, Subcategory } from '@/types'
 import { Save, AlertCircle, CheckCircle2 } from 'lucide-react'
 import { createProduct } from '@/lib/actions/products'
+import { getSubcategoriesByCategory } from '@/lib/actions/subcategories'
 import ImageUploader from './ImageUploader'
 import { uploadProductImage } from '@/lib/supabase/storage'
 
@@ -19,6 +20,7 @@ export default function SingleProductForm({ categories, onCreated }: SingleProdu
     description_en: '',
     description_ar: '',
     category_id: '',
+    subcategory_id: '' as string,
     price: 0,
     stock_quantity: 0,
     badge: '',
@@ -28,6 +30,17 @@ export default function SingleProductForm({ categories, onCreated }: SingleProdu
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
+  const [subcategories, setSubcategories] = useState<Subcategory[]>([])
+
+  // Fetch subcategories when category changes
+  useEffect(() => {
+    if (formData.category_id) {
+      getSubcategoriesByCategory(formData.category_id).then(setSubcategories)
+    } else {
+      setSubcategories([])
+    }
+    setFormData(prev => ({ ...prev, subcategory_id: '' }))
+  }, [formData.category_id])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -46,6 +59,7 @@ export default function SingleProductForm({ categories, onCreated }: SingleProdu
       // 2. Create product
       const result = await createProduct({
         ...formData,
+        subcategory_id: formData.subcategory_id || null,
         image_url,
       })
 
@@ -57,12 +71,14 @@ export default function SingleProductForm({ categories, onCreated }: SingleProdu
           description_en: '',
           description_ar: '',
           category_id: '',
+          subcategory_id: '',
           price: 0,
           stock_quantity: 0,
           badge: '',
           is_service: false,
         })
         setImageFile(null)
+        setSubcategories([])
         onCreated(result.product)
       } else {
         setError(result.error || 'Failed to create product')
@@ -139,6 +155,22 @@ export default function SingleProductForm({ categories, onCreated }: SingleProdu
                 ))}
               </select>
             </div>
+
+            {subcategories.length > 0 && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Subcategory</label>
+                <select 
+                  value={formData.subcategory_id}
+                  onChange={e => setFormData({...formData, subcategory_id: e.target.value})}
+                  className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none bg-white"
+                >
+                  <option value="">None (No Subcategory)</option>
+                  {subcategories.map(s => (
+                    <option key={s.id} value={s.id}>{s.name_en}</option>
+                  ))}
+                </select>
+              </div>
+            )}
 
             <div className="grid grid-cols-2 gap-4">
               <div>

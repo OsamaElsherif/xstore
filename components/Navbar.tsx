@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { Search, ShoppingCart, User, Menu, Globe, Package, X, Home, ShoppingBag, Info, Phone, HelpCircle, Wrench, Heart, Loader2 } from 'lucide-react';
+import { Search, ShoppingCart, User, Menu, Globe, Package, X, Home, ShoppingBag, Info, Phone, HelpCircle, Wrench, Heart, Loader2, ChevronDown, Grid3X3 } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -9,7 +9,8 @@ import { useCart } from '@/contexts/CartContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useWishlist } from '@/contexts/WishlistContext';
 import { searchProducts } from '@/lib/actions/products';
-import { Product } from '@/types';
+import { getCategoriesWithSubcategories } from '@/lib/actions/subcategories';
+import { Product, CategoryWithSubcategories } from '@/types';
 import { getProductImageUrl } from '@/lib/supabase/storage';
 import { useRouter } from 'next/navigation';
 
@@ -19,7 +20,14 @@ export default function Navbar() {
   const { user, signOut, isAdmin, isCashier, isOrderReceiver } = useAuth();
   const { wishlistItems } = useWishlist();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [categories, setCategories] = useState<CategoryWithSubcategories[]>([]);
+  const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
   const router = useRouter();
+
+  // Fetch categories for the menu
+  useEffect(() => {
+    getCategoriesWithSubcategories().then(setCategories);
+  }, []);
 
   // Search State
   const [searchQuery, setSearchQuery] = useState('');
@@ -181,6 +189,60 @@ export default function Navbar() {
 
           {/* Actions */}
           <div className="flex items-center gap-4 sm:gap-6">
+            {/* Categories Dropdown */}
+            <div className="hidden lg:block relative group">
+              <button 
+                onMouseEnter={() => setIsCategoriesOpen(true)}
+                className="text-brand-gray hover:text-brand-orange transition-colors text-sm font-bold uppercase tracking-widest flex items-center gap-1 py-4"
+              >
+                Categories
+                <ChevronDown size={14} className={`transition-transform duration-300 ${isCategoriesOpen ? 'rotate-180' : ''}`} />
+              </button>
+
+              {isCategoriesOpen && (
+                <div 
+                  onMouseLeave={() => setIsCategoriesOpen(false)}
+                  className="absolute top-full ltr:left-0 rtl:right-0 w-[600px] bg-brand-dark border border-brand-gray/20 rounded-2xl shadow-2xl p-6 grid grid-cols-3 gap-6 animate-in fade-in slide-in-from-top-2 duration-200"
+                >
+                  {categories.map(cat => (
+                    <div key={cat.id} className="space-y-3">
+                      <Link 
+                        href={`/categories/${cat.slug}`}
+                        className="text-brand-orange font-bold text-sm hover:underline block"
+                        onClick={() => setIsCategoriesOpen(false)}
+                      >
+                        {language === 'ar' ? cat.name_ar : cat.name_en}
+                      </Link>
+                      <div className="space-y-1.5">
+                        {cat.subcategories?.slice(0, 5).map(sub => (
+                          <Link
+                            key={sub.id}
+                            href={`/categories/${cat.slug}/${sub.slug}`}
+                            className="block text-xs text-brand-gray hover:text-brand-light transition-colors"
+                            onClick={() => setIsCategoriesOpen(false)}
+                          >
+                            {language === 'ar' ? sub.name_ar : sub.name_en}
+                          </Link>
+                        ))}
+                        {cat.subcategories?.length > 5 && (
+                          <Link 
+                            href={`/categories/${cat.slug}`}
+                            className="text-[10px] text-brand-orange/60 font-bold hover:text-brand-orange transition-colors block pt-1"
+                            onClick={() => setIsCategoriesOpen(false)}
+                          >
+                            + {cat.subcategories.length - 5} more
+                          </Link>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <Link href="/shop" className="hidden md:block text-brand-gray hover:text-brand-orange transition-colors text-sm font-bold uppercase tracking-widest">
+              {t('shop')}
+            </Link>
             <button 
               onClick={() => setLanguage(language === 'en' ? 'ar' : 'en')}
               className="flex items-center gap-1 text-brand-gray hover:text-brand-orange transition-colors text-sm font-medium"
@@ -295,6 +357,33 @@ export default function Navbar() {
                 {t('shop')}
               </Link>
             </li>
+            
+            {/* Mobile Categories */}
+            {categories.map(cat => (
+              <li key={cat.id} className="space-y-1">
+                <div className="flex items-center justify-between p-3 text-brand-gray font-bold text-sm">
+                  <Link href={`/categories/${cat.slug}`} className="flex items-center gap-3 hover:text-white transition-colors" onClick={toggleMobileMenu}>
+                    <Grid3X3 size={18} />
+                    {language === 'ar' ? cat.name_ar : cat.name_en}
+                  </Link>
+                </div>
+                {cat.subcategories && cat.subcategories.length > 0 && (
+                  <ul className="ltr:ml-10 rtl:mr-10 space-y-1 border-l border-brand-gray/10">
+                    {cat.subcategories.map(sub => (
+                      <li key={sub.id}>
+                        <Link 
+                          href={`/categories/${cat.slug}/${sub.slug}`}
+                          className="block p-2 text-xs text-brand-gray/60 hover:text-brand-orange transition-colors"
+                          onClick={toggleMobileMenu}
+                        >
+                          {language === 'ar' ? sub.name_ar : sub.name_en}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </li>
+            ))}
             <li>
               <Link href="/maintenance" className="flex items-center gap-3 p-3 rounded-xl text-brand-gray hover:text-white hover:bg-brand-light/10 transition-all" onClick={toggleMobileMenu}>
                 <Wrench size={20} />
