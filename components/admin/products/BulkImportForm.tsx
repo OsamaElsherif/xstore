@@ -1,14 +1,14 @@
 'use client'
 
 import { useState, useRef } from 'react'
-import { Category, Product } from '@/types'
+import { CategoryWithFullTree, Product } from '@/types'
 import { Download, Upload, AlertCircle, CheckCircle2, FileSpreadsheet, Trash2 } from 'lucide-react'
 import * as XLSX from 'xlsx'
 import { parseProductSheet, ParsedRow } from '@/lib/utils/parseProductSheet'
 import { createProductsBulk } from '@/lib/actions/products'
 
 interface BulkImportFormProps {
-  categories: Category[]
+  categories: CategoryWithFullTree[]
   onImported: () => void
 }
 
@@ -23,11 +23,11 @@ export default function BulkImportForm({ categories, onImported }: BulkImportFor
   const downloadTemplate = () => {
     const headers = [
       'name_en', 'name_ar', 'description_en', 'description_ar', 
-      'category_slug', 'price', 'stock_quantity', 'badge', 'is_service'
+      'category_slug', 'subcategory_slug', 'sub_subcategory_slug', 'price', 'stock_quantity', 'badge', 'is_service'
     ]
     const example = [
       'iPhone 15 Pro', 'ايفون ١٥ برو', 'Latest Apple flagship', 'أحدث إصدار من ابل',
-      'mobile-phones', '55000', '10', 'New', 'false'
+      'mobile-phones', 'smartphones', 'apple-phones', '55000', '10', 'New', 'false'
     ]
     
     const ws = XLSX.utils.aoa_to_sheet([headers, example])

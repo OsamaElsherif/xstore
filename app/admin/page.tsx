@@ -1,14 +1,14 @@
 import React from 'react';
 import { getCurrentProfile } from '@/lib/actions/auth';
 import { createClient } from '@/lib/supabase/server';
-import { 
-  TrendingUp, 
-  ShoppingBag, 
-  Wrench, 
-  Package, 
-  Clock, 
-  CheckCircle2, 
-  AlertCircle 
+import {
+  TrendingUp,
+  ShoppingBag,
+  Wrench,
+  Package,
+  Clock,
+  CheckCircle2,
+  AlertCircle
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -53,78 +53,78 @@ export default async function AdminDashboard() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {role === 'ADMIN' && (
           <>
-            <StatCard 
-              title="Monthly Revenue" 
-              value="EGP 124,500" 
-              subValue="+12% from last month" 
-              icon={TrendingUp} 
-              color="purple" 
+            <StatCard
+              title="Monthly Revenue"
+              value="EGP 0"
+              subValue="0% from last month"
+              icon={TrendingUp}
+              color="purple"
             />
-            <StatCard 
-              title="Total Orders" 
-              value={activeOrders?.toString() || '0'} 
-              subValue="Active orders" 
-              icon={ShoppingBag} 
-              color="blue" 
+            <StatCard
+              title="Total Orders"
+              value={activeOrders?.toString() || '0'}
+              subValue="Active orders"
+              icon={ShoppingBag}
+              color="blue"
             />
-            <StatCard 
-              title="Pending Repairs" 
-              value={pendingMaint?.toString() || '0'} 
-              subValue="Waiting for review" 
-              icon={Wrench} 
-              color="orange" 
+            <StatCard
+              title="Pending Repairs"
+              value={pendingMaint?.toString() || '0'}
+              subValue="Waiting for review"
+              icon={Wrench}
+              color="orange"
             />
-            <StatCard 
-              title="Products" 
-              value={totalProducts?.toString() || '0'} 
-              subValue="In stock" 
-              icon={Package} 
-              color="green" 
+            <StatCard
+              title="Products"
+              value={totalProducts?.toString() || '0'}
+              subValue="In stock"
+              icon={Package}
+              color="green"
             />
           </>
         )}
 
         {role === 'CASHIER' && (
           <>
-            <StatCard 
-              title="Unpaid Orders" 
-              value="12" 
-              subValue="Pending payment" 
-              icon={AlertCircle} 
-              color="red" 
+            <StatCard
+              title="Unpaid Orders"
+              value="12"
+              subValue="Pending payment"
+              icon={AlertCircle}
+              color="red"
             />
-            <StatCard 
-              title="Paid Today" 
-              value="36" 
-              subValue="EGP 4,200 collected" 
-              icon={CheckCircle2} 
-              color="green" 
+            <StatCard
+              title="Paid Today"
+              value="36"
+              subValue="EGP 4,200 collected"
+              icon={CheckCircle2}
+              color="green"
             />
           </>
         )}
 
         {role === 'ORDER_RECEIVER' && (
           <>
-            <StatCard 
-              title="New Requests" 
-              value={pendingMaint?.toString() || '0'} 
-              subValue="Pending check-in" 
-              icon={AlertCircle} 
-              color="orange" 
+            <StatCard
+              title="New Requests"
+              value={pendingMaint?.toString() || '0'}
+              subValue="Pending check-in"
+              icon={AlertCircle}
+              color="orange"
             />
-            <StatCard 
-              title="Under Repair" 
-              value="8" 
-              subValue="Currently in workshop" 
-              icon={Wrench} 
-              color="blue" 
+            <StatCard
+              title="Under Repair"
+              value="8"
+              subValue="Currently in workshop"
+              icon={Wrench}
+              color="blue"
             />
-            <StatCard 
-              title="Done Today" 
-              value="5" 
-              subValue="Ready for pickup" 
-              icon={CheckCircle2} 
-              color="green" 
+            <StatCard
+              title="Done Today"
+              value="5"
+              subValue="Ready for pickup"
+              icon={CheckCircle2}
+              color="green"
             />
           </>
         )}
@@ -139,6 +139,8 @@ export default async function AdminDashboard() {
               <QuickActionCard title="Manage Products" href="/admin/products" description="Add, edit, or remove products from catalog" />
               <QuickActionCard title="Manage Categories" href="/admin/categories" description="Organize your shop structure" />
               <QuickActionCard title="User Management" href="/admin/users" description="Manage staff and customer accounts" />
+              <QuickActionCard title="WA Sessions" href="/admin/whatsapp-sessions" description="Manage all Wasender WhatsApp sessions and connection status" />
+              <QuickActionCard title="WhatsApp Templates" href="/admin/whatsapp-templates" description="Create and configure notification message templates" />
             </>
           )}
           {role === 'CASHIER' && (
@@ -180,7 +182,7 @@ function StatCard({ title, value, subValue, icon: Icon, color }: any) {
 
 function QuickActionCard({ title, href, description }: any) {
   return (
-    <Link 
+    <Link
       href={href}
       className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm hover:shadow-lg hover:border-orange-500/20 transition-all group"
     >

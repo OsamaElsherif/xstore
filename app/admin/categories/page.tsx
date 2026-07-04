@@ -15,7 +15,7 @@ export default async function Page() {
   const supabase = await createClient()
   const { data, error } = await supabase
     .from('categories')
-    .select('*, products(count), subcategories(*)')
+    .select('*, products(count), subcategories(*, sub_subcategories(*))')
     .order('name_en')
 
   if (error) {

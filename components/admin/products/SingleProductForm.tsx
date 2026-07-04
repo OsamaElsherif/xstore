@@ -1,10 +1,11 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Category, Product, Subcategory } from '@/types'
+import { Category, Product, Subcategory, SubSubcategory } from '@/types'
 import { Save, AlertCircle, CheckCircle2 } from 'lucide-react'
 import { createProduct } from '@/lib/actions/products'
 import { getSubcategoriesByCategory } from '@/lib/actions/subcategories'
+import { getSubSubcategoriesBySubcategory } from '@/lib/actions/sub-subcategories'
 import ImageUploader from './ImageUploader'
 import { uploadProductImage } from '@/lib/supabase/storage'
 
@@ -20,7 +21,8 @@ export default function SingleProductForm({ categories, onCreated }: SingleProdu
     description_en: '',
     description_ar: '',
     category_id: '',
-    subcategory_id: '' as string,
+    subcategory_id: '',
+    sub_subcategory_id: '',
     price: 0,
     stock_quantity: 0,
     badge: '',
@@ -31,6 +33,7 @@ export default function SingleProductForm({ categories, onCreated }: SingleProdu
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
   const [subcategories, setSubcategories] = useState<Subcategory[]>([])
+  const [subSubcategories, setSubSubcategories] = useState<SubSubcategory[]>([])
 
   // Fetch subcategories when category changes
   useEffect(() => {
@@ -39,8 +42,19 @@ export default function SingleProductForm({ categories, onCreated }: SingleProdu
     } else {
       setSubcategories([])
     }
-    setFormData(prev => ({ ...prev, subcategory_id: '' }))
+    setFormData(prev => ({ ...prev, subcategory_id: '', sub_subcategory_id: '' }))
+    setSubSubcategories([])
   }, [formData.category_id])
+
+  // Fetch sub-subcategories when subcategory changes
+  useEffect(() => {
+    if (formData.subcategory_id) {
+      getSubSubcategoriesBySubcategory(formData.subcategory_id).then(setSubSubcategories)
+    } else {
+      setSubSubcategories([])
+    }
+    setFormData(prev => ({ ...prev, sub_subcategory_id: '' }))
+  }, [formData.subcategory_id])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -60,6 +74,7 @@ export default function SingleProductForm({ categories, onCreated }: SingleProdu
       const result = await createProduct({
         ...formData,
         subcategory_id: formData.subcategory_id || null,
+        sub_subcategory_id: formData.sub_subcategory_id || null,
         image_url,
       })
 
@@ -72,6 +87,7 @@ export default function SingleProductForm({ categories, onCreated }: SingleProdu
           description_ar: '',
           category_id: '',
           subcategory_id: '',
+          sub_subcategory_id: '',
           price: 0,
           stock_quantity: 0,
           badge: '',
@@ -79,6 +95,7 @@ export default function SingleProductForm({ categories, onCreated }: SingleProdu
         })
         setImageFile(null)
         setSubcategories([])
+        setSubSubcategories([])
         onCreated(result.product)
       } else {
         setError(result.error || 'Failed to create product')
@@ -167,6 +184,22 @@ export default function SingleProductForm({ categories, onCreated }: SingleProdu
                   <option value="">None (No Subcategory)</option>
                   {subcategories.map(s => (
                     <option key={s.id} value={s.id}>{s.name_en}</option>
+                  ))}
+                </select>
+              </div>
+            )}
+
+            {subSubcategories.length > 0 && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Series (Sub-subcategory)</label>
+                <select 
+                  value={formData.sub_subcategory_id}
+                  onChange={e => setFormData({...formData, sub_subcategory_id: e.target.value})}
+                  className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none bg-white"
+                >
+                  <option value="">None (No Series)</option>
+                  {subSubcategories.map(ss => (
+                    <option key={ss.id} value={ss.id}>{ss.name_en}</option>
                   ))}
                 </select>
               </div>

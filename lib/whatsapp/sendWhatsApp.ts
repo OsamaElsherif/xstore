@@ -12,18 +12,13 @@ type SendWhatsAppOptions = {
 export async function sendWhatsAppMessage(
   options: SendWhatsAppOptions
 ): Promise<void> {
-  // 1. Read Green API credentials from DB settings
-  const settings = await getSettings([
-    'greenapi_instance_id',
-    'greenapi_api_token',
-  ])
-
-  const instanceId = settings.greenapi_instance_id
-  const apiToken = settings.greenapi_api_token
+  // 1. Read Wasender Session API Key from DB settings
+  const settings = await getSettings(['wasender_api_key'])
+  const apiKey = settings.wasender_api_key
 
   // Silently skip if not configured — never crash the main flow
-  if (!instanceId || !apiToken) {
-    console.warn(`Green API not configured — skipping message to ${options.to}`)
+  if (!apiKey) {
+    console.warn(`Wasender not configured — skipping message to ${options.to}`)
     return
   }
 
@@ -41,24 +36,26 @@ export async function sendWhatsAppMessage(
     bodyTemplate
   )
 
-  // 4. Format phone number → Green API requires "{countryCode}{number}@c.us"
-  const chatId = options.to.replace(/[\s\-+]/g, '') + '@c.us'
+  // 4. Format phone to E.164 — Wasender requires a leading "+"
+  let phone = options.to.replace(/[\s\-]/g, '')
+  if (!phone.startsWith('+')) phone = `+${phone}`
 
-  // 5. Send via Green API sendMessage endpoint
+  // 5. Send via Wasender send-message endpoint
   try {
-    const url = `https://api.green-api.com/waInstance${instanceId}/sendMessage/${apiToken}`
-
-    const response = await fetch(url, {
+    const response = await fetch('https://www.wasenderapi.com/api/send-message', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ chatId, message: messageBody }),
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ to: phone, text: messageBody }),
     })
 
-    if (!response.ok) {
-      const err = await response.json()
-      console.error('Green API send failed:', err)
+    const result = await response.json()
+    if (!response.ok || !result.success) {
+      console.error('Wasender send failed:', result)
     }
   } catch (e) {
-    console.error('Green API network error:', e)
+    console.error('Wasender network error:', e)
   }
 }

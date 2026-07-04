@@ -318,6 +318,7 @@ export type Database = {
           reviews_count: number | null
           stock_quantity: number | null
           subcategory_id: string | null
+          sub_subcategory_id: string | null
         }
         Insert: {
           badge?: string | null
@@ -335,6 +336,7 @@ export type Database = {
           reviews_count?: number | null
           stock_quantity?: number | null
           subcategory_id?: string | null
+          sub_subcategory_id?: string | null
         }
         Update: {
           badge?: string | null
@@ -352,6 +354,7 @@ export type Database = {
           reviews_count?: number | null
           stock_quantity?: number | null
           subcategory_id?: string | null
+          sub_subcategory_id?: string | null
         }
         Relationships: [
           {
@@ -366,6 +369,13 @@ export type Database = {
             columns: ["subcategory_id"]
             isOneToOne: false
             referencedRelation: "subcategories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "products_sub_subcategory_id_fkey"
+            columns: ["sub_subcategory_id"]
+            isOneToOne: false
+            referencedRelation: "sub_subcategories"
             referencedColumns: ["id"]
           },
         ]
@@ -404,6 +414,44 @@ export type Database = {
             columns: ["category_id"]
             isOneToOne: false
             referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sub_subcategories: {
+        Row: {
+          id: string
+          subcategory_id: string
+          name_en: string
+          name_ar: string
+          slug: string
+          image_url: string | null
+          created_at: string | null
+        }
+        Insert: {
+          id?: string
+          subcategory_id: string
+          name_en: string
+          name_ar: string
+          slug: string
+          image_url?: string | null
+          created_at?: string | null
+        }
+        Update: {
+          id?: string
+          subcategory_id?: string
+          name_en?: string
+          name_ar?: string
+          slug?: string
+          image_url?: string | null
+          created_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sub_subcategories_subcategory_id_fkey"
+            columns: ["subcategory_id"]
+            isOneToOne: false
+            referencedRelation: "subcategories"
             referencedColumns: ["id"]
           },
         ]

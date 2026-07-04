@@ -1,15 +1,16 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Product, Category, Subcategory } from '@/types'
+import { Product, Category, Subcategory, SubSubcategory } from '@/types'
 import { X, Save, AlertCircle } from 'lucide-react'
 import { updateProduct } from '@/lib/actions/products'
 import { getSubcategoriesByCategory } from '@/lib/actions/subcategories'
+import { getSubSubcategoriesBySubcategory } from '@/lib/actions/sub-subcategories'
 import ImageUploader from './ImageUploader'
 import { uploadProductImage } from '@/lib/supabase/storage'
 
 interface EditProductModalProps {
-  product: Product
+  product: Product & { sub_subcategory_id?: string | null }
   categories: Category[]
   onClose: () => void
   onUpdated: (p: Product) => void
@@ -22,7 +23,8 @@ export default function EditProductModal({ product, categories, onClose, onUpdat
     description_en: product.description_en || '',
     description_ar: product.description_ar || '',
     category_id: product.category_id,
-    subcategory_id: product.subcategory_id || '' as string,
+    subcategory_id: product.subcategory_id || '',
+    sub_subcategory_id: product.sub_subcategory_id || '',
     price: product.price,
     stock_quantity: product.stock_quantity,
     badge: product.badge || '',
@@ -32,6 +34,7 @@ export default function EditProductModal({ product, categories, onClose, onUpdat
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [subcategories, setSubcategories] = useState<Subcategory[]>([])
+  const [subSubcategories, setSubSubcategories] = useState<SubSubcategory[]>([])
 
   // Fetch subcategories when category changes
   useEffect(() => {
@@ -42,9 +45,22 @@ export default function EditProductModal({ product, categories, onClose, onUpdat
     }
     // Only reset subcategory if category actually changed from the original
     if (formData.category_id !== product.category_id) {
-      setFormData(prev => ({ ...prev, subcategory_id: '' }))
+      setFormData(prev => ({ ...prev, subcategory_id: '', sub_subcategory_id: '' }))
     }
   }, [formData.category_id, product.category_id])
+
+  // Fetch sub-subcategories when subcategory changes
+  useEffect(() => {
+    if (formData.subcategory_id) {
+      getSubSubcategoriesBySubcategory(formData.subcategory_id).then(setSubSubcategories)
+    } else {
+      setSubSubcategories([])
+    }
+    // Only reset sub-subcategory if subcategory actually changed from the original
+    if (formData.subcategory_id !== product.subcategory_id) {
+      setFormData(prev => ({ ...prev, sub_subcategory_id: '' }))
+    }
+  }, [formData.subcategory_id, product.subcategory_id])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -63,6 +79,7 @@ export default function EditProductModal({ product, categories, onClose, onUpdat
       const result = await updateProduct(product.id, {
         ...formData,
         subcategory_id: formData.subcategory_id || null,
+        sub_subcategory_id: formData.sub_subcategory_id || null,
         image_url,
       })
 
@@ -152,6 +169,22 @@ export default function EditProductModal({ product, categories, onClose, onUpdat
                     <option value="">None (No Subcategory)</option>
                     {subcategories.map(s => (
                       <option key={s.id} value={s.id}>{s.name_en}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
+              {subSubcategories.length > 0 && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Series (Sub-subcategory)</label>
+                  <select 
+                    value={formData.sub_subcategory_id}
+                    onChange={e => setFormData({...formData, sub_subcategory_id: e.target.value})}
+                    className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none bg-white"
+                  >
+                    <option value="">None (No Series)</option>
+                    {subSubcategories.map(ss => (
+                      <option key={ss.id} value={ss.id}>{ss.name_en}</option>
                     ))}
                   </select>
                 </div>

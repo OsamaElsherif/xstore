@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { Save, Loader2, Play, CheckCircle, XCircle, Eye, EyeOff } from 'lucide-react';
 import { SettingsMap } from '@/types';
-import { testMetaConnection } from '@/lib/actions/settings';
+// import { testMetaConnection } from '@/lib/actions/settings';
 
 interface MetaAdsTabProps {
   settings: Record<string, string | null>;
@@ -28,13 +28,8 @@ export default function MetaAdsTab({ settings, onSave, isSaving }: MetaAdsTabPro
     setIsTesting(true);
     setTestResult(null);
     try {
-      const result = await testMetaConnection();
-      setTestResult({
-        success: result.success,
-        message: result.success 
-          ? `Successfully connected to: ${result.accountName}` 
-          : result.error || 'Failed to connect to Meta API',
-      });
+      // TODO: implement test connection
+      setTestResult({ success: false, message: 'Not implemented yet' });
     } catch (err: any) {
       setTestResult({ success: false, message: err.message });
     } finally {
@@ -44,9 +39,9 @@ export default function MetaAdsTab({ settings, onSave, isSaving }: MetaAdsTabPro
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSave(Object.entries(formData).map(([key, value]) => ({ 
-      key: key as keyof SettingsMap, 
-      value: value as string 
+    onSave(Object.entries(formData).map(([key, value]) => ({
+      key: key as keyof SettingsMap,
+      value: value as string
     })));
   };
 

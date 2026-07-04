@@ -1,7 +1,7 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
-import { Product, Category, Subcategory } from '@/types'
+import { Product, Category, Subcategory, SubSubcategory, ProductWithRelations } from '@/types'
 import { TablesInsert } from '@/types/database.types'
 import { getCurrentProfile } from './auth'
 import { revalidatePath } from 'next/cache'
@@ -29,6 +29,8 @@ export async function getProducts(categorySlug?: string): Promise<Product[]> {
 
 export async function getAllProductsForShop(options?: {
   categorySlug?: string
+  subcategorySlug?: string
+  subSubcategorySlug?: string
   sortBy?: 'newest' | 'price_asc' | 'price_desc' | 'rating'
   minPrice?: number
   maxPrice?: number
@@ -59,12 +61,42 @@ export async function getAllProductsForShop(options?: {
     if (cat) categoryId = cat.id
   }
 
+  let subcategoryId: string | undefined
+  if (categoryId && options?.subcategorySlug) {
+    const { data: subcat } = await supabase
+      .from('subcategories')
+      .select('id')
+      .eq('category_id', categoryId)
+      .eq('slug', options.subcategorySlug)
+      .single()
+    if (subcat) subcategoryId = subcat.id
+  }
+
+  let subSubcategoryId: string | undefined
+  if (subcategoryId && options?.subSubcategorySlug) {
+    const { data: subsubcat } = await supabase
+      .from('sub_subcategories')
+      .select('id')
+      .eq('subcategory_id', subcategoryId)
+      .eq('slug', options.subSubcategorySlug)
+      .single()
+    if (subsubcat) subSubcategoryId = subsubcat.id
+  }
+
   let query = supabase
     .from('products')
     .select('*, categories(*)', { count: 'exact' })
 
   if (categoryId) {
     query = query.eq('category_id', categoryId)
+  }
+
+  if (subcategoryId) {
+    query = query.eq('subcategory_id', subcategoryId)
+  }
+
+  if (subSubcategoryId) {
+    query = query.eq('sub_subcategory_id', subSubcategoryId)
   }
 
   // Search
@@ -161,15 +193,17 @@ export async function getProductsByCategory(
   categorySlug: string,
   options?: {
     subcategorySlug?: string
+    subSubcategorySlug?: string
     sortBy?: 'price_asc' | 'price_desc' | 'rating' | 'newest'
     minPrice?: number
     maxPrice?: number
     inStockOnly?: boolean
   }
 ): Promise<{
-  products: Product[]
+  products: ProductWithRelations[]
   category: Category | null
   subcategory: Subcategory | null
+  subSubcategory: SubSubcategory | null
 }> {
   const supabase = await createClient()
 
@@ -181,7 +215,7 @@ export async function getProductsByCategory(
     .single()
 
   if (catError || !category) {
-    return { products: [], category: null, subcategory: null }
+    return { products: [], category: null, subcategory: null, subSubcategory: null }
   }
 
   // 2. If subcategory slug provided, resolve it
@@ -195,20 +229,41 @@ export async function getProductsByCategory(
       .single()
 
     if (!subcat) {
-      return { products: [], category: category as Category, subcategory: null }
+      return { products: [], category: category as Category, subcategory: null, subSubcategory: null }
     }
     subcategory = subcat as Subcategory
+  }
+
+  // 2b. If sub-subcategory slug provided, resolve it
+  let subSubcategory: SubSubcategory | null = null
+  if (subcategory && options?.subSubcategorySlug) {
+    const { data: subsubcat } = await supabase
+      .from('sub_subcategories')
+      .select('*')
+      .eq('subcategory_id', subcategory.id)
+      .eq('slug', options.subSubcategorySlug)
+      .single()
+
+    if (!subsubcat) {
+      return { products: [], category: category as Category, subcategory, subSubcategory: null }
+    }
+    subSubcategory = subsubcat as SubSubcategory
   }
 
   // 3. Get products
   let query = supabase
     .from('products')
-    .select('*')
+    .select('*, categories(*), subcategories(*), sub_subcategories(*)')
     .eq('category_id', category.id)
 
   // Filter by subcategory if provided
   if (subcategory) {
     query = query.eq('subcategory_id', subcategory.id)
+  }
+
+  // Filter by sub-subcategory if provided
+  if (subSubcategory) {
+    query = query.eq('sub_subcategory_id', subSubcategory.id)
   }
 
   if (options?.minPrice) query = query.gte('price', options.minPrice)
@@ -227,10 +282,10 @@ export async function getProductsByCategory(
 
   if (prodError) {
     console.error('Error fetching products by category:', prodError)
-    return { products: [], category: category as Category, subcategory }
+    return { products: [], category: category as Category, subcategory, subSubcategory }
   }
 
-  return { products: products as Product[], category: category as Category, subcategory }
+  return { products: products as any[], category: category as Category, subcategory, subSubcategory }
 }
 
 export async function searchProducts(
@@ -310,6 +365,20 @@ export async function createProduct(data: ProductInsert): Promise<{ success: boo
   }
 
   const supabase = await createClient()
+
+  // Validate sub_subcategory belongs to subcategory
+  if (data.sub_subcategory_id) {
+    const { data: subSub } = await supabase
+      .from('sub_subcategories')
+      .select('subcategory_id')
+      .eq('id', data.sub_subcategory_id)
+      .single()
+
+    if (subSub?.subcategory_id !== data.subcategory_id) {
+      return { success: false, error: 'Sub-subcategory does not belong to the selected subcategory' }
+    }
+  }
+
   const { data: product, error } = await supabase
     .from('products')
     .insert(data)
@@ -367,6 +436,24 @@ export async function updateProduct(id: string, data: Partial<ProductInsert>): P
   }
 
   const supabase = await createClient()
+
+  // Validate sub_subcategory belongs to subcategory
+  if (data.sub_subcategory_id) {
+    const { data: subSub } = await supabase
+      .from('sub_subcategories')
+      .select('subcategory_id')
+      .eq('id', data.sub_subcategory_id)
+      .single()
+
+    const subcategoryId = data.subcategory_id !== undefined ? data.subcategory_id : (
+      await supabase.from('products').select('subcategory_id').eq('id', id).single().then(r => r.data?.subcategory_id)
+    )
+
+    if (subSub?.subcategory_id !== subcategoryId) {
+      return { success: false, error: 'Sub-subcategory does not belong to the selected subcategory' }
+    }
+  }
+
   const { error } = await supabase
     .from('products')
     .update(data)

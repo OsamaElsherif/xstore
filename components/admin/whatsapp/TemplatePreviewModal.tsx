@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { X, Send, Loader2, CheckCircle, XCircle } from 'lucide-react'
 import { WhatsAppTemplate } from '@/types'
-import { sendTestWhatsApp } from '@/lib/actions/greenapi'
+import { testWasenderConnection } from '@/lib/actions/settings'
 
 interface Props {
   template: WhatsAppTemplate
@@ -32,7 +32,7 @@ export default function TemplatePreviewModal({ template, onClose }: Props) {
     if (!testPhone) return
     setSending(true)
     setSendResult(null)
-    const result = await sendTestWhatsApp(testPhone, renderedMessage)
+    const result = await testWasenderConnection(testPhone)
     setSending(false)
     setSendResult({
       success: result.success,

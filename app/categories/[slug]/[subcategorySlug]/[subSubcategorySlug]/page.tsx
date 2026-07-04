@@ -7,27 +7,28 @@ import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
 
 interface PageProps {
-  params: Promise<{ slug: string; subcategorySlug: string }>
+  params: Promise<{ slug: string; subcategorySlug: string; subSubcategorySlug: string }>
   searchParams: Promise<{ sort?: string; minPrice?: string; maxPrice?: string; inStock?: string }>
 }
 
-export default async function SubcategoryPage({ params, searchParams }: PageProps) {
-  const { slug, subcategorySlug } = await params
+export default async function SubSubcategoryPage({ params, searchParams }: PageProps) {
+  const { slug, subcategorySlug, subSubcategorySlug } = await params
   const search = await searchParams
 
   const result = await getProductsByCategory(slug, {
     subcategorySlug,
+    subSubcategorySlug,
     sortBy: search.sort as any,
     minPrice: search.minPrice ? Number(search.minPrice) : undefined,
     maxPrice: search.maxPrice ? Number(search.maxPrice) : undefined,
     inStockOnly: search.inStock === 'true',
   })
 
-  if (!result.category || !result.subcategory) {
+  if (!result.category || !result.subcategory || !result.subSubcategory) {
     notFound()
   }
 
-  // Fetch sibling subcategories for sidebar filter links, and sub-subcategories for this subcategory
+  // Fetch sibling subcategories and sibling sub-subcategories for sidebar filter links
   const [subcategories, subSubcategories] = await Promise.all([
     getSubcategoriesByCategory(result.category.id),
     getSubSubcategoriesBySubcategory(result.subcategory.id),
@@ -37,10 +38,11 @@ export default async function SubcategoryPage({ params, searchParams }: PageProp
     <main className="min-h-screen flex flex-col bg-brand-light/30">
       <Navbar />
       <div className="flex-1 max-w-7xl mx-auto px-6 py-12 w-full">
-        <CategoryPage 
-          initialProducts={result.products} 
+        <CategoryPage
+          initialProducts={result.products}
           category={result.category}
           subcategory={result.subcategory}
+          subSubcategory={result.subSubcategory}
           subcategories={subcategories}
           subSubcategories={subSubcategories}
         />

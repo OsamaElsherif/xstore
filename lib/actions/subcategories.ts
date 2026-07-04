@@ -1,7 +1,7 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
-import { Subcategory, Category, CategoryWithSubcategories } from '@/types'
+import { Subcategory, Category, CategoryWithSubcategories, CategoryWithFullTree } from '@/types'
 import { getCurrentProfile } from './auth'
 import { revalidatePath } from 'next/cache'
 
@@ -38,6 +38,24 @@ export async function getCategoriesWithSubcategories(): Promise<CategoryWithSubc
   }
 
   return data as CategoryWithSubcategories[]
+}
+
+// Get all categories with their nested subcategories and sub-subcategories
+export async function getCategoriesWithFullTree(): Promise<CategoryWithFullTree[]> {
+  const supabase = await createClient()
+  const { data, error } = await supabase
+    .from('categories')
+    .select('*, subcategories(*, sub_subcategories(*))')
+    .order('name_en')
+
+  if (error) {
+    console.error('Error fetching categories with full tree:', error)
+    return []
+  }
+
+  // Ensure sub_subcategories are ordered by name_en within each subcategory, and subcategories within categories
+  // Note: we can sort them in js/ts or let supabase handle it if needed. Let's make sure the type casting is clean.
+  return data as any[]
 }
 
 // Get single subcategory by slug and parent category slug

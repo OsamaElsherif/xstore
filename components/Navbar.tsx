@@ -9,8 +9,8 @@ import { useCart } from '@/contexts/CartContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useWishlist } from '@/contexts/WishlistContext';
 import { searchProducts } from '@/lib/actions/products';
-import { getCategoriesWithSubcategories } from '@/lib/actions/subcategories';
-import { Product, CategoryWithSubcategories } from '@/types';
+import { getCategoriesWithFullTree } from '@/lib/actions/subcategories';
+import { Product, CategoryWithFullTree } from '@/types';
 import { getProductImageUrl } from '@/lib/supabase/storage';
 import { useRouter } from 'next/navigation';
 
@@ -20,13 +20,15 @@ export default function Navbar() {
   const { user, signOut, isAdmin, isCashier, isOrderReceiver } = useAuth();
   const { wishlistItems } = useWishlist();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [categories, setCategories] = useState<CategoryWithSubcategories[]>([]);
+  const [categories, setCategories] = useState<CategoryWithFullTree[]>([]);
   const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
+  const [expandedCategories, setExpandedCategories] = useState<Record<string, boolean>>({});
+  const [expandedSubcategories, setExpandedSubcategories] = useState<Record<string, boolean>>({});
   const router = useRouter();
 
   // Fetch categories for the menu
   useEffect(() => {
-    getCategoriesWithSubcategories().then(setCategories);
+    getCategoriesWithFullTree().then(setCategories);
   }, []);
 
   // Search State
@@ -215,14 +217,32 @@ export default function Navbar() {
                       </Link>
                       <div className="space-y-1.5">
                         {cat.subcategories?.slice(0, 5).map(sub => (
-                          <Link
-                            key={sub.id}
-                            href={`/categories/${cat.slug}/${sub.slug}`}
-                            className="block text-xs text-brand-gray hover:text-brand-light transition-colors"
-                            onClick={() => setIsCategoriesOpen(false)}
-                          >
-                            {language === 'ar' ? sub.name_ar : sub.name_en}
-                          </Link>
+                          <div key={sub.id} className="relative group/sub">
+                            <Link
+                              href={`/categories/${cat.slug}/${sub.slug}`}
+                              className="block text-xs text-brand-gray hover:text-brand-light transition-colors flex items-center justify-between"
+                              onClick={() => setIsCategoriesOpen(false)}
+                            >
+                              <span>{language === 'ar' ? sub.name_ar : sub.name_en}</span>
+                              {sub.sub_subcategories && sub.sub_subcategories.length > 0 && (
+                                <span className="text-[10px] text-brand-gray/40">›</span>
+                              )}
+                            </Link>
+                            {sub.sub_subcategories && sub.sub_subcategories.length > 0 && (
+                              <div className="absolute ltr:left-full rtl:right-full top-0 ml-2 rtl:mr-2 w-48 bg-brand-dark border border-brand-gray/20 rounded-xl shadow-2xl p-3 hidden group-hover/sub:block z-50 space-y-1.5 animate-in fade-in slide-in-from-left-2 duration-200">
+                                {sub.sub_subcategories.map(ss => (
+                                  <Link
+                                    key={ss.id}
+                                    href={`/categories/${cat.slug}/${sub.slug}/${ss.slug}`}
+                                    className="block text-[11px] text-brand-gray hover:text-brand-light transition-colors"
+                                    onClick={() => setIsCategoriesOpen(false)}
+                                  >
+                                    {language === 'ar' ? ss.name_ar : ss.name_en}
+                                  </Link>
+                                ))}
+                              </div>
+                            )}
+                          </div>
                         ))}
                         {cat.subcategories?.length > 5 && (
                           <Link 
@@ -366,18 +386,51 @@ export default function Navbar() {
                     <Grid3X3 size={18} />
                     {language === 'ar' ? cat.name_ar : cat.name_en}
                   </Link>
+                  {cat.subcategories && cat.subcategories.length > 0 && (
+                    <button
+                      onClick={() => setExpandedCategories(prev => ({ ...prev, [cat.id]: !prev[cat.id] }))}
+                      className="p-1 hover:text-white transition-colors"
+                    >
+                      <ChevronDown size={16} className={`transition-transform duration-200 ${expandedCategories[cat.id] ? 'rotate-180' : ''}`} />
+                    </button>
+                  )}
                 </div>
-                {cat.subcategories && cat.subcategories.length > 0 && (
+                {cat.subcategories && cat.subcategories.length > 0 && expandedCategories[cat.id] && (
                   <ul className="ltr:ml-10 rtl:mr-10 space-y-1 border-l border-brand-gray/10">
                     {cat.subcategories.map(sub => (
-                      <li key={sub.id}>
-                        <Link 
-                          href={`/categories/${cat.slug}/${sub.slug}`}
-                          className="block p-2 text-xs text-brand-gray/60 hover:text-brand-orange transition-colors"
-                          onClick={toggleMobileMenu}
-                        >
-                          {language === 'ar' ? sub.name_ar : sub.name_en}
-                        </Link>
+                      <li key={sub.id} className="space-y-1">
+                        <div className="flex items-center justify-between pr-2">
+                          <Link 
+                            href={`/categories/${cat.slug}/${sub.slug}`}
+                            className="block p-2 text-xs text-brand-gray/60 hover:text-brand-orange transition-colors flex-1"
+                            onClick={toggleMobileMenu}
+                          >
+                            {language === 'ar' ? sub.name_ar : sub.name_en}
+                          </Link>
+                          {sub.sub_subcategories && sub.sub_subcategories.length > 0 && (
+                            <button
+                              onClick={() => setExpandedSubcategories(prev => ({ ...prev, [sub.id]: !prev[sub.id] }))}
+                              className="p-1 text-brand-gray/40 hover:text-brand-orange transition-colors"
+                            >
+                              <ChevronDown size={14} className={`transition-transform duration-200 ${expandedSubcategories[sub.id] ? 'rotate-180' : ''}`} />
+                            </button>
+                          )}
+                        </div>
+                        {sub.sub_subcategories && sub.sub_subcategories.length > 0 && expandedSubcategories[sub.id] && (
+                          <ul className="ltr:ml-6 rtl:mr-6 space-y-1 border-l border-brand-gray/10 mb-2">
+                            {sub.sub_subcategories.map(ss => (
+                              <li key={ss.id}>
+                                <Link 
+                                  href={`/categories/${cat.slug}/${sub.slug}/${ss.slug}`}
+                                  className="block p-1.5 text-[11px] text-brand-gray/40 hover:text-brand-light transition-colors"
+                                  onClick={toggleMobileMenu}
+                                >
+                                  {language === 'ar' ? ss.name_ar : ss.name_en}
+                                </Link>
+                              </li>
+                            ))}
+                          </ul>
+                        )}
                       </li>
                     ))}
                   </ul>

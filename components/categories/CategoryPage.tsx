@@ -6,20 +6,22 @@ import Link from 'next/link';
 import { ShoppingCart, Star, Filter, ArrowUpDown, PackageX, Search, ChevronRight, Home, Grid3X3 } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useCart } from '@/contexts/CartContext';
-import { Product, Category, Subcategory } from '@/types';
+import { Product, Category, Subcategory, SubSubcategory, ProductWithRelations } from '@/types';
 import { getProductImageUrl } from '@/lib/supabase/storage';
 import WishlistButton from '../products/WishlistButton';
 
 interface CategoryPageProps {
-  initialProducts: Product[];
+  initialProducts: ProductWithRelations[];
   category: Category;
   subcategory?: Subcategory;
+  subSubcategory?: SubSubcategory;
   subcategories?: Subcategory[];
+  subSubcategories?: SubSubcategory[];
 }
 
 type SortOption = 'newest' | 'price_asc' | 'price_desc' | 'rating';
 
-export default function CategoryPage({ initialProducts, category, subcategory, subcategories }: CategoryPageProps) {
+export default function CategoryPage({ initialProducts, category, subcategory, subSubcategory, subcategories, subSubcategories }: CategoryPageProps) {
   const [products, setProducts] = useState(initialProducts);
   const [sortBy, setSortBy] = useState<SortOption>('newest');
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 100000]);
@@ -31,7 +33,8 @@ export default function CategoryPage({ initialProducts, category, subcategory, s
 
   const categoryName = language === 'ar' ? category.name_ar : category.name_en;
   const subcategoryName = subcategory ? (language === 'ar' ? subcategory.name_ar : subcategory.name_en) : null;
-  const pageName = subcategoryName || categoryName;
+  const subSubcategoryName = subSubcategory ? (language === 'ar' ? subSubcategory.name_ar : subSubcategory.name_en) : null;
+  const pageName = subSubcategoryName || subcategoryName || categoryName;
 
   const filteredAndSortedProducts = useMemo(() => {
     let result = [...initialProducts];
@@ -74,7 +77,19 @@ export default function CategoryPage({ initialProducts, category, subcategory, s
           Home
         </Link>
         <ChevronRight size={14} />
-        {subcategory ? (
+        {subSubcategory ? (
+          <>
+            <Link href={`/categories/${category.slug}`} className="hover:text-brand-orange transition-colors">
+              {categoryName}
+            </Link>
+            <ChevronRight size={14} />
+            <Link href={`/categories/${category.slug}/${subcategory?.slug}`} className="hover:text-brand-orange transition-colors">
+              {subcategoryName}
+            </Link>
+            <ChevronRight size={14} />
+            <span className="text-brand-dark font-bold">{subSubcategoryName}</span>
+          </>
+        ) : subcategory ? (
           <>
             <Link href={`/categories/${category.slug}`} className="hover:text-brand-orange transition-colors">
               {categoryName}
@@ -90,7 +105,7 @@ export default function CategoryPage({ initialProducts, category, subcategory, s
       {/* Banner */}
       <div className="relative h-64 md:h-80 rounded-3xl overflow-hidden bg-brand-dark">
         <Image 
-          src={getProductImageUrl(subcategory?.image_url || category.image_url) || '/placeholder-category.png'}
+          src={getProductImageUrl(subSubcategory?.image_url || subcategory?.image_url || category.image_url) || '/placeholder-category.png'}
           alt={pageName}
           fill
           className="object-cover opacity-60"
@@ -136,6 +151,46 @@ export default function CategoryPage({ initialProducts, category, subcategory, s
                   </div>
                   <p className="text-sm font-bold text-brand-dark group-hover:text-brand-orange transition-colors">{subName}</p>
                   <p className="text-[10px] text-brand-dark/40 font-bold mt-1">({subProductCount})</p>
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Sub-subcategory Strip — only on subcategory page (subcategory set, no subSubcategory set) */}
+      {subcategory && !subSubcategory && subSubcategories && subSubcategories.length > 0 && (
+        <div className="space-y-4">
+          <h2 className="text-lg font-bold text-brand-dark flex items-center gap-2">
+            <Grid3X3 size={20} className="text-brand-orange" />
+            {language === 'ar' ? 'تصفح حسب السلسلة' : 'Browse by Series'}
+          </h2>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+            {subSubcategories.map((subsub) => {
+              const subsubName = language === 'ar' ? subsub.name_ar : subsub.name_en;
+              const subsubProductCount = initialProducts.filter(p => p.sub_subcategory_id === subsub.id).length;
+              return (
+                <Link
+                  key={subsub.id}
+                  href={`/categories/${category.slug}/${subcategory.slug}/${subsub.slug}`}
+                  className="group bg-white rounded-2xl border border-brand-gray/10 p-5 flex flex-col items-center text-center hover:shadow-xl hover:shadow-brand-dark/5 hover:border-brand-orange/20 transition-all duration-300"
+                >
+                  <div className="relative w-16 h-16 rounded-2xl bg-brand-light/50 overflow-hidden mb-3 group-hover:scale-110 transition-transform">
+                    {subsub.image_url ? (
+                      <Image
+                        src={getProductImageUrl(subsub.image_url) || ''}
+                        alt={subsubName}
+                        fill
+                        className="object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-brand-orange text-2xl font-black font-display">
+                        {subsubName.charAt(0)}
+                      </div>
+                    )}
+                  </div>
+                  <p className="text-sm font-bold text-brand-dark group-hover:text-brand-orange transition-colors">{subsubName}</p>
+                  <p className="text-[10px] text-brand-dark/40 font-bold mt-1">({subsubProductCount})</p>
                 </Link>
               );
             })}
@@ -205,6 +260,45 @@ export default function CategoryPage({ initialProducts, category, subcategory, s
                           }`}
                         >
                           {subName}
+                        </Link>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* Sub-subcategory sidebar section */}
+              {subcategory && subSubcategories && subSubcategories.length > 0 && (
+                <div className="space-y-3">
+                  <label className="text-sm font-bold text-brand-dark/60 uppercase tracking-wider">
+                    {language === 'ar' ? 'تصفح حسب السلسلة' : 'Filter by Series'}
+                  </label>
+                  <div className="space-y-1">
+                    <Link 
+                      href={`/categories/${category.slug}/${subcategory.slug}`}
+                      className={`block px-3 py-2 rounded-xl text-sm font-bold transition-colors ${
+                        !subSubcategory 
+                          ? 'text-brand-orange bg-brand-orange/10' 
+                          : 'text-brand-dark/60 hover:text-brand-orange hover:bg-brand-orange/5'
+                      }`}
+                    >
+                      {language === 'ar' ? 'الكل' : 'All'} {!subSubcategory ? `(${initialProducts.length})` : ''}
+                    </Link>
+                    {subSubcategories.map(subsub => {
+                      const subsubName = language === 'ar' ? subsub.name_ar : subsub.name_en;
+                      const isActive = subSubcategory && subsub.id === subSubcategory.id;
+                      const count = initialProducts.filter(p => p.sub_subcategory_id === subsub.id).length;
+                      return (
+                        <Link
+                          key={subsub.id}
+                          href={`/categories/${category.slug}/${subcategory.slug}/${subsub.slug}`}
+                          className={`block px-3 py-2 rounded-xl text-sm font-bold transition-colors ${
+                            isActive 
+                              ? 'text-brand-orange bg-brand-orange/10' 
+                              : 'text-brand-dark/60 hover:text-brand-orange hover:bg-brand-orange/5'
+                          }`}
+                        >
+                          {subsubName} {!subSubcategory ? `(${count})` : ''}
                         </Link>
                       );
                     })}

@@ -1,5 +1,5 @@
 import { getAdminProducts } from '@/lib/actions/products'
-import { getCategories } from '@/lib/actions/categories'
+import { getCategoriesWithFullTree } from '@/lib/actions/subcategories'
 import { getCurrentProfile } from '@/lib/actions/auth'
 import { redirect } from 'next/navigation'
 import ProductsManager from '@/components/admin/products/ProductsManager'
@@ -12,7 +12,7 @@ export default async function AdminProductsPage() {
   }
 
   const products = await getAdminProducts()
-  const categories = await getCategories()
+  const categories = await getCategoriesWithFullTree()
 
   return (
     <ProductsManager 

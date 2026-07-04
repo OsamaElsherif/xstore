@@ -1,10 +1,9 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { usePathname } from 'next/navigation';
 import { 
   Menu, 
-  Bell, 
   User, 
   ChevronDown,
   LogOut,
@@ -13,7 +12,6 @@ import {
 } from 'lucide-react';
 import { Profile } from '@/types';
 import { signOut } from '@/lib/actions/auth';
-import { createClient } from '@/lib/supabase/client';
 
 interface AdminTopbarProps {
   profile: Profile;
@@ -32,34 +30,10 @@ const pageTitles: Record<string, string> = {
 export default function AdminTopbar({ profile, onMenuClick }: AdminTopbarProps) {
   const pathname = usePathname();
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [pendingCount, setPendingCount] = useState(0);
-  const supabase = createClient();
 
   const getPageTitle = () => {
     return pageTitles[pathname] || 'Admin Dashboard';
   };
-
-  useEffect(() => {
-    const fetchPendingCounts = async () => {
-      // Pending maintenance requests
-      const { count: maintenanceCount } = await supabase
-        .from('maintenance_requests')
-        .select('*', { count: 'exact', head: true })
-        .eq('status', 'PENDING');
-
-      // Unpaid orders (or similar "new" status if applicable)
-      const { count: orderCount } = await supabase
-        .from('orders')
-        .select('*', { count: 'exact', head: true })
-        .eq('status', 'NOT_DONE');
-
-      setPendingCount((maintenanceCount || 0) + (orderCount || 0));
-    };
-
-    fetchPendingCounts();
-    const interval = setInterval(fetchPendingCounts, 60000); // Every 60s
-    return () => clearInterval(interval);
-  }, [supabase]);
 
   return (
     <header className="h-16 bg-white border-b border-gray-200 sticky top-0 z-30 px-4 md:px-8 flex items-center justify-between shadow-sm">
@@ -85,16 +59,6 @@ export default function AdminTopbar({ profile, onMenuClick }: AdminTopbarProps) 
             className="bg-transparent border-none focus:ring-0 text-sm w-48"
           />
         </div>
-
-        {/* Notifications */}
-        <button className="p-2 text-gray-500 hover:bg-gray-100 rounded-lg relative">
-          <Bell size={22} />
-          {pendingCount > 0 && (
-            <span className="absolute top-1.5 right-1.5 w-4 h-4 bg-red-500 text-white text-[10px] font-bold flex items-center justify-center rounded-full border-2 border-white">
-              {pendingCount > 99 ? '99+' : pendingCount}
-            </span>
-          )}
-        </button>
 
         {/* User Profile */}
         <div className="relative">

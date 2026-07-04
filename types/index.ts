@@ -8,6 +8,7 @@ export type Enums<T extends keyof Database['public']['Enums']> =
 export type Profile = Tables<'profiles'>
 export type Category = Tables<'categories'>
 export type Subcategory = Tables<'subcategories'>
+export type SubSubcategory = Tables<'sub_subcategories'>
 export type Product = Tables<'products'>
 export type Order = Tables<'orders'>
 export type OrderItem = Tables<'order_items'>
@@ -18,9 +19,10 @@ export type WhatsAppTemplate = Tables<'whatsapp_templates'>
 
 // Typed settings map — used throughout the app
 export type SettingsMap = {
-  // Green API (replaces Meta WhatsApp Business API)
-  greenapi_instance_id: string
-  greenapi_api_token: string
+  // Wasender API credentials
+  wasender_personal_access_token: string  // session management (connect/QR/disconnect)
+  wasender_session_id: string             // the session to manage
+  wasender_api_key: string                // sending messages + status + account info
   // WhatsApp notification toggles
   whatsapp_notify_orders: string          // 'true' | 'false'
   whatsapp_notify_maintenance: string
@@ -63,9 +65,59 @@ export type CategoryWithSubcategories = Category & {
   subcategories: Subcategory[]
 }
 
+// Subcategory with its sub-subcategories nested
+export type SubcategoryWithChildren = Subcategory & {
+  sub_subcategories: SubSubcategory[]
+}
+
+// Category with full nested tree (3 levels)
+export type CategoryWithFullTree = Category & {
+  subcategories: SubcategoryWithChildren[]
+}
+
 // Product with both category and subcategory
 export type ProductWithRelations = Product & {
   categories: Category | null
   subcategories: Subcategory | null
+  sub_subcategories: SubSubcategory | null
 }
 
+// ─── Wasender Session Management ──────────────────────────────────────────────
+
+export type WasenderSession = {
+  id: number
+  name: string
+  phone_number: string
+  status: string
+  account_protection: boolean
+  log_messages: boolean
+  webhook_url: string | null
+  webhook_enabled: boolean
+  webhook_events: string[] | null
+  api_key?: string          // only present in details response
+  webhook_secret?: string   // only present in details response
+  created_at: string
+  updated_at: string
+}
+
+export type WasenderSessionStatus =
+  | 'connected'
+  | 'DISCONNECTED'
+  | 'disconnected'
+  | 'need_scan'
+  | 'connecting'
+  | 'logged_out'
+  | 'unknown'
+
+export type UpdateSessionPayload = {
+  name?: string
+  phone_number?: string
+  account_protection?: boolean
+  log_messages?: boolean
+  webhook_url?: string
+  webhook_enabled?: boolean
+  webhook_events?: string[]
+  read_incoming_messages?: boolean
+  auto_reject_calls?: boolean
+  always_online?: boolean
+}

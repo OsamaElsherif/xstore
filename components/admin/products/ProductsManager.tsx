@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Product, Category } from '@/types'
+import { Product, CategoryWithFullTree } from '@/types'
 import ProductList from './ProductList'
 import SingleProductForm from './SingleProductForm'
 import BulkImportForm from './BulkImportForm'
@@ -9,7 +9,7 @@ import { LayoutGrid, PlusCircle, FileUp } from 'lucide-react'
 
 interface ProductsManagerProps {
   initialProducts: (Product & { category_name_en: string | null })[]
-  categories: Category[]
+  categories: CategoryWithFullTree[]
 }
 
 export default function ProductsManager({ initialProducts, categories }: ProductsManagerProps) {

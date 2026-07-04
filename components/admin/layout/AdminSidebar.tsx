@@ -3,19 +3,20 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { 
-  LayoutDashboard, 
-  ShoppingBag, 
-  Wrench, 
-  Package, 
-  FolderOpen, 
-  Users, 
+import {
+  LayoutDashboard,
+  ShoppingBag,
+  Wrench,
+  Package,
+  FolderOpen,
+  Users,
   LogOut,
   X,
   Store,
   Settings2,
   BarChart3,
-  MessageSquare
+  MessageSquare,
+  Smartphone,
 } from 'lucide-react';
 import { Profile } from '@/types';
 import { signOut } from '@/lib/actions/auth';
@@ -50,6 +51,7 @@ const navItems = [
       { label: 'Settings', href: '/admin/settings', icon: Settings2 },
       { label: 'Ads Analytics', href: '/admin/analytics', icon: BarChart3 },
       { label: 'WhatsApp Templates', href: '/admin/whatsapp-templates', icon: MessageSquare },
+      { label: 'WA Sessions', href: '/admin/whatsapp-sessions', icon: Smartphone },
     ],
   },
 ];
