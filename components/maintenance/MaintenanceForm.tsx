@@ -1,17 +1,16 @@
 'use client';
 
 import { useState } from 'react';
-import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { submitMaintenanceRequest } from '@/lib/actions/maintenance';
 import { MaintenanceRequest } from '@/types';
-import { Wrench, CheckCircle2, AlertCircle, ArrowRight, Smartphone, Apple, ShieldCheck } from 'lucide-react';
+import { Wrench, CheckCircle2, AlertCircle, ArrowRight, Smartphone, ShieldCheck } from 'lucide-react';
 import Link from 'next/link';
+import { PhoneInput } from '@/components/ui/PhoneInput';
 
 const BRANDS = ['Apple', 'Samsung', 'Huawei', 'Xiaomi', 'Other'];
 
 export default function MaintenanceForm() {
-  const { t, language } = useLanguage();
   const { user } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [successRequest, setSuccessRequest] = useState<MaintenanceRequest | null>(null);
@@ -157,14 +156,14 @@ export default function MaintenanceForm() {
             </div>
             <div className="space-y-2">
               <label className="text-sm font-bold text-brand-dark/60 uppercase tracking-wider ms-1">Phone Number *</label>
-              <input 
-                type="tel" 
-                name="customer_phone"
+              <PhoneInput
                 required
                 value={formData.customer_phone}
-                onChange={handleChange}
-                placeholder="01012345678"
-                className="w-full bg-brand-light/30 border border-brand-gray/10 rounded-2xl px-6 py-4 focus:ring-2 focus:ring-brand-orange outline-none transition-all"
+                onChange={(customer_phone) =>
+                  setFormData(prev => ({ ...prev, customer_phone }))
+                }
+                placeholder="1012345678"
+                className="bg-brand-light/30"
               />
             </div>
           </div>

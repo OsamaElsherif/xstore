@@ -1,7 +1,7 @@
 'use server'
 
-import { createClient } from '@/lib/supabase/client'
 import { supabaseAdmin } from '@/lib/supabase/admin'
+import { toE164Egypt } from '@/lib/utils/phone'
 import { SettingsMap, AppSetting } from '@/types'
 
 // Get a single setting value by key
@@ -290,8 +290,7 @@ export async function testWasenderConnection(
     return { success: false, error: 'Session not connected yet' }
   }
 
-  let phone = testPhone.replace(/[\s\-]/g, '')
-  if (!phone.startsWith('+')) phone = `+${phone}`
+  const phone = toE164Egypt(testPhone)
 
   try {
     const res = await fetch(`${WASENDER_BASE}/send-message`, {

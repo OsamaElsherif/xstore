@@ -13,6 +13,7 @@ import {
   disconnectWasenderSession,
   testWasenderConnection,
 } from '@/lib/actions/settings';
+import { PhoneInput } from '@/components/ui/PhoneInput';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -528,13 +529,12 @@ export default function WhatsAppTab({ settings, onSave, isSaving }: WhatsAppTabP
               Test Message
             </h3>
             <div className="flex gap-3">
-              <input
-                type="tel"
+              <PhoneInput
                 value={testPhone}
-                onChange={e => setTestPhone(e.target.value)}
+                onChange={setTestPhone}
                 onKeyDown={e => e.key === 'Enter' && handleTestMessage()}
-                placeholder="+20 1012345678"
-                className="flex-1 px-5 py-3 bg-gray-50 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+                placeholder="1012345678"
+                className="bg-gray-50"
               />
               <button
                 type="button"

@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { ArrowLeft, CheckCircle2, ShoppingBag, AlertCircle, Minus, Plus, X } from 'lucide-react';
+import { ArrowLeft, ShoppingBag, AlertCircle, Minus, Plus, X } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { useCart } from '@/contexts/CartContext';
@@ -12,6 +12,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { createOrder } from '@/lib/actions/orders';
 import { useRouter } from 'next/navigation';
 import { getProductImageUrl } from '@/lib/supabase/storage';
+import { PhoneInput } from '@/components/ui/PhoneInput';
 
 export default function Checkout() {
   const { items, cartTotal, clearCart, updateQuantity, removeFromCart } = useCart();
@@ -32,6 +33,10 @@ export default function Checkout() {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handlePhoneChange = (phone: string) => {
+    setFormData((prev) => ({ ...prev, phone }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -167,13 +172,11 @@ export default function Checkout() {
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-brand-dark mb-2">Phone Number</label>
-                    <input
-                      type="tel"
-                      name="phone"
+                    <PhoneInput
                       required
                       value={formData.phone}
-                      onChange={handleInputChange}
-                      className="w-full bg-brand-light/20 border border-brand-gray/20 rounded-xl py-2.5 px-4 focus:outline-none focus:ring-2 focus:ring-brand-orange focus:border-transparent transition-all"
+                      onChange={handlePhoneChange}
+                      className="bg-brand-light/20"
                     />
                   </div>
                 </div>

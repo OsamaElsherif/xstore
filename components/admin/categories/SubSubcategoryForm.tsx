@@ -4,6 +4,8 @@ import { useState } from 'react';
 import { SubSubcategory } from '@/types';
 import { Loader2 } from 'lucide-react';
 import { createSubSubcategory, updateSubSubcategory } from '@/lib/actions/sub-subcategories';
+import ImageUploader from '../products/ImageUploader';
+import { uploadProductImage } from '@/lib/supabase/storage';
 
 interface SubSubcategoryFormProps {
   subcategoryId: string;
@@ -24,6 +26,8 @@ export default function SubSubcategoryForm({ subcategoryId, subSubcategory, onSu
   const [nameEn, setNameEn] = useState(subSubcategory?.name_en || '');
   const [nameAr, setNameAr] = useState(subSubcategory?.name_ar || '');
   const [slug, setSlug] = useState(subSubcategory?.slug || '');
+  const [imageUrl, setImageUrl] = useState<string | null>(subSubcategory?.image_url || null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [autoSlug, setAutoSlug] = useState(!isEdit);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -41,14 +45,21 @@ export default function SubSubcategoryForm({ subcategoryId, subSubcategory, onSu
     setError(null);
 
     try {
+      let nextImageUrl = imageUrl;
+
+      if (selectedFile) {
+        nextImageUrl = await uploadProductImage(selectedFile);
+      }
+
       if (isEdit) {
         const result = await updateSubSubcategory(subSubcategory!.id, {
           name_en: nameEn,
           name_ar: nameAr,
           slug,
+          image_url: nextImageUrl,
         });
         if (result.success) {
-          onSuccess({ ...subSubcategory!, name_en: nameEn, name_ar: nameAr, slug });
+          onSuccess({ ...subSubcategory!, name_en: nameEn, name_ar: nameAr, slug, image_url: nextImageUrl });
         } else {
           setError(result.error || 'Failed to update series');
         }
@@ -58,6 +69,7 @@ export default function SubSubcategoryForm({ subcategoryId, subSubcategory, onSu
           name_en: nameEn,
           name_ar: nameAr,
           slug,
+          image_url: nextImageUrl,
         });
         if (result.success && result.subSubcategory) {
           onSuccess(result.subSubcategory);
@@ -119,6 +131,19 @@ export default function SubSubcategoryForm({ subcategoryId, subSubcategory, onSu
             className="w-full px-3 py-2 bg-white border border-gray-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-mono"
           />
         </div>
+      </div>
+
+      <div className="space-y-2">
+        <label className="block text-xs font-bold text-gray-500">Image</label>
+        <ImageUploader
+          currentImageUrl={imageUrl}
+          onFileSelected={(file) => {
+            setSelectedFile(file);
+            if (!file && !subSubcategory?.image_url) {
+              setImageUrl(null);
+            }
+          }}
+        />
       </div>
 
       <div className="flex justify-end gap-3 pt-2">

@@ -35,6 +35,13 @@ export default function CategoryPage({ initialProducts, category, subcategory, s
   const subcategoryName = subcategory ? (language === 'ar' ? subcategory.name_ar : subcategory.name_en) : null;
   const subSubcategoryName = subSubcategory ? (language === 'ar' ? subSubcategory.name_ar : subSubcategory.name_en) : null;
   const pageName = subSubcategoryName || subcategoryName || categoryName;
+  const bannerImage = subSubcategory?.image_url
+    ? getProductImageUrl(subSubcategory.image_url)
+    : subcategory?.image_url
+      ? getProductImageUrl(subcategory.image_url)
+      : category.image_url
+        ? getProductImageUrl(category.image_url)
+        : '/placeholder-product.png';
 
   const filteredAndSortedProducts = useMemo(() => {
     let result = [...initialProducts];
@@ -105,7 +112,7 @@ export default function CategoryPage({ initialProducts, category, subcategory, s
       {/* Banner */}
       <div className="relative h-64 md:h-80 rounded-3xl overflow-hidden bg-brand-dark">
         <Image 
-          src={getProductImageUrl(subSubcategory?.image_url || subcategory?.image_url || category.image_url) || '/placeholder-category.png'}
+          src={bannerImage}
           alt={pageName}
           fill
           className="object-cover opacity-60"
@@ -136,18 +143,12 @@ export default function CategoryPage({ initialProducts, category, subcategory, s
                   className="group bg-white rounded-2xl border border-brand-gray/10 p-5 flex flex-col items-center text-center hover:shadow-xl hover:shadow-brand-dark/5 hover:border-brand-orange/20 transition-all duration-300"
                 >
                   <div className="relative w-16 h-16 rounded-2xl bg-brand-light/50 overflow-hidden mb-3 group-hover:scale-110 transition-transform">
-                    {sub.image_url ? (
-                      <Image
-                        src={getProductImageUrl(sub.image_url) || ''}
-                        alt={subName}
-                        fill
-                        className="object-cover"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-brand-orange text-2xl font-black">
-                        {subName.charAt(0)}
-                      </div>
-                    )}
+                    <Image
+                      src={sub.image_url ? getProductImageUrl(sub.image_url) : '/placeholder-product.png'}
+                      alt={subName}
+                      fill
+                      className="object-cover"
+                    />
                   </div>
                   <p className="text-sm font-bold text-brand-dark group-hover:text-brand-orange transition-colors">{subName}</p>
                   <p className="text-[10px] text-brand-dark/40 font-bold mt-1">({subProductCount})</p>
@@ -176,18 +177,12 @@ export default function CategoryPage({ initialProducts, category, subcategory, s
                   className="group bg-white rounded-2xl border border-brand-gray/10 p-5 flex flex-col items-center text-center hover:shadow-xl hover:shadow-brand-dark/5 hover:border-brand-orange/20 transition-all duration-300"
                 >
                   <div className="relative w-16 h-16 rounded-2xl bg-brand-light/50 overflow-hidden mb-3 group-hover:scale-110 transition-transform">
-                    {subsub.image_url ? (
-                      <Image
-                        src={getProductImageUrl(subsub.image_url) || ''}
-                        alt={subsubName}
-                        fill
-                        className="object-cover"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-brand-orange text-2xl font-black font-display">
-                        {subsubName.charAt(0)}
-                      </div>
-                    )}
+                    <Image
+                      src={subsub.image_url ? getProductImageUrl(subsub.image_url) : '/placeholder-product.png'}
+                      alt={subsubName}
+                      fill
+                      className="object-cover"
+                    />
                   </div>
                   <p className="text-sm font-bold text-brand-dark group-hover:text-brand-orange transition-colors">{subsubName}</p>
                   <p className="text-[10px] text-brand-dark/40 font-bold mt-1">({subsubProductCount})</p>

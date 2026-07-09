@@ -1,5 +1,6 @@
 import { getSettings } from '@/lib/actions/settings'
 import { getTemplateByEvent } from '@/lib/actions/whatsapp-templates'
+import { toE164Egypt } from '@/lib/utils/phone'
 import { EventKey } from '@/types'
 
 type SendWhatsAppOptions = {
@@ -37,8 +38,7 @@ export async function sendWhatsAppMessage(
   )
 
   // 4. Format phone to E.164 — Wasender requires a leading "+"
-  let phone = options.to.replace(/[\s\-]/g, '')
-  if (!phone.startsWith('+')) phone = `+${phone}`
+  const phone = toE164Egypt(options.to)
 
   // 5. Send via Wasender send-message endpoint
   try {

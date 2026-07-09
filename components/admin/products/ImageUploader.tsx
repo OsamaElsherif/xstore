@@ -1,7 +1,7 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { Upload, X, ImageIcon } from 'lucide-react'
+import { useState, useEffect, useId } from 'react'
+import { X, ImageIcon } from 'lucide-react'
 import Image from 'next/image'
 import { getProductImageUrl } from '@/lib/supabase/storage'
 
@@ -13,10 +13,13 @@ interface ImageUploaderProps {
 export default function ImageUploader({ currentImageUrl, onFileSelected }: ImageUploaderProps) {
   const [preview, setPreview] = useState<string | null>(null)
   const [fileInfo, setFileInfo] = useState<{ name: string, size: string } | null>(null)
+  const inputId = useId()
 
   useEffect(() => {
     if (currentImageUrl) {
       setPreview(getProductImageUrl(currentImageUrl))
+    } else {
+      setPreview(null)
     }
   }, [currentImageUrl])
 
@@ -55,7 +58,7 @@ export default function ImageUploader({ currentImageUrl, onFileSelected }: Image
               <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                 <button 
                   type="button"
-                  onClick={() => document.getElementById('product-image-upload')?.click()}
+                  onClick={() => document.getElementById(inputId)?.click()}
                   className="px-4 py-2 bg-white text-indigo-600 rounded-lg text-sm font-bold shadow-lg hover:bg-indigo-50 transition-colors"
                 >
                   Replace Image
@@ -65,7 +68,7 @@ export default function ImageUploader({ currentImageUrl, onFileSelected }: Image
           ) : (
             <button 
               type="button"
-              onClick={() => document.getElementById('product-image-upload')?.click()}
+              onClick={() => document.getElementById(inputId)?.click()}
               className="flex flex-col items-center gap-2 text-gray-400 hover:text-indigo-500 transition-colors"
             >
               <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center">
@@ -89,7 +92,7 @@ export default function ImageUploader({ currentImageUrl, onFileSelected }: Image
 
       <input 
         type="file" 
-        id="product-image-upload"
+        id={inputId}
         accept="image/*"
         className="hidden"
         onChange={handleFileChange}

@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { X, Send, Loader2, CheckCircle, XCircle } from 'lucide-react'
 import { WhatsAppTemplate } from '@/types'
 import { testWasenderConnection } from '@/lib/actions/settings'
+import { PhoneInput } from '@/components/ui/PhoneInput'
 
 interface Props {
   template: WhatsAppTemplate
@@ -119,12 +120,11 @@ export default function TemplatePreviewModal({ template, onClose }: Props) {
           <div className="space-y-3 p-5 bg-gray-50 border border-gray-100 rounded-2xl">
             <p className="text-sm font-bold text-gray-700">Send Test Message</p>
             <div className="flex gap-3">
-              <input
-                type="tel"
+              <PhoneInput
                 value={testPhone}
-                onChange={e => setTestPhone(e.target.value)}
-                placeholder="+201012345678"
-                className="flex-1 px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-green-400"
+                onChange={setTestPhone}
+                placeholder="1012345678"
+                className="bg-white"
               />
               <button
                 onClick={handleSendTest}
