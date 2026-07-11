@@ -76,6 +76,13 @@ export default function CartSidebar() {
                       <div className="flex justify-between items-start gap-2">
                         <h4 className="font-bold text-brand-dark text-sm line-clamp-2">
                           {language === 'ar' ? item.name_ar : item.name_en}
+                          {item.active_offer && (
+                            <span className="inline-block bg-red-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full ltr:ml-2 rtl:mr-2">
+                              {item.active_offer.discount_type === 'PERCENTAGE'
+                                ? `${item.active_offer.discount_value}% OFF`
+                                : `-${t('egp')} ${item.active_offer.discount_value}`}
+                            </span>
+                          )}
                         </h4>
                         <button 
                           onClick={() => removeFromCart(item.id)}
@@ -84,7 +91,27 @@ export default function CartSidebar() {
                           <X size={16} />
                         </button>
                       </div>
-                      <p className="text-brand-orange font-bold text-sm mt-1">{t('egp')} {item.price.toLocaleString()}</p>
+                      <div className="mt-1 flex items-center gap-2">
+                        {item.effectivePrice < item.price ? (
+                          <>
+                            <span className="text-green-600 font-bold text-sm">
+                              {t('egp')} {item.effectivePrice.toLocaleString()}
+                            </span>
+                            <span className="text-gray-400 line-through text-xs">
+                              {t('egp')} {item.price.toLocaleString()}
+                            </span>
+                          </>
+                        ) : (
+                          <span className="text-brand-orange font-bold text-sm">
+                            {t('egp')} {item.price.toLocaleString()}
+                          </span>
+                        )}
+                      </div>
+                      {item.effectivePrice < item.price && (
+                        <p className="text-[10px] text-green-600 font-semibold mt-0.5">
+                          {language === 'ar' ? 'وفرت' : 'You save'} {t('egp')} {((item.price - item.effectivePrice) * item.quantity).toLocaleString()}
+                        </p>
+                      )}
                     </div>
                     <div className="flex items-center gap-3 mt-2">
                       <div className="flex items-center border border-brand-gray/30 rounded-lg overflow-hidden">

@@ -5,12 +5,17 @@ import Link from 'next/link';
 import { ShoppingCart, Star } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useCart } from '@/contexts/CartContext';
-import { Product, Category } from '@/types';
+import { Product, Category, Offer } from '@/types';
 import { getProductImageUrl } from '@/lib/supabase/storage';
 import WishlistButton from '@/components/products/WishlistButton';
+import PriceDisplay from '@/components/products/PriceDisplay';
 
 interface ProductCardProps {
-  product: Product & { categories?: Category | null };
+  product: Product & {
+    categories?: Category | null;
+    active_offer?: Offer | null;
+    discounted_price?: number | null;
+  };
   view: 'grid' | 'list';
 }
 
@@ -75,9 +80,12 @@ export default function ProductCard({ product, view }: ProductCardProps) {
           </div>
 
           <div className="shrink-0 flex sm:flex-col items-center sm:items-end gap-3">
-            <p className="text-lg font-bold text-brand-dark whitespace-nowrap">
-              {t('egp')} {product.price.toLocaleString()}
-            </p>
+            <PriceDisplay
+              originalPrice={product.price}
+              discountedPrice={product.discounted_price ?? null}
+              activeOffer={product.active_offer}
+              size="md"
+            />
             <button
               onClick={() => addToCart(product)}
               disabled={isOutOfStock}
@@ -146,9 +154,13 @@ export default function ProductCard({ product, view }: ProductCardProps) {
             {name}
           </h3>
         </Link>
-        <p className="text-brand-dark/70 font-medium mb-4 flex-grow">
-          {t('egp')} {product.price.toLocaleString()}
-        </p>
+        <PriceDisplay
+          originalPrice={product.price}
+          discountedPrice={product.discounted_price ?? null}
+          activeOffer={product.active_offer}
+          size="md"
+          className="mb-4 flex-grow"
+        />
 
         <div className="flex gap-2">
           <button

@@ -1,12 +1,28 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
-import { Product, Category, Subcategory, SubSubcategory, ProductWithRelations } from '@/types'
+import { Product, Category, Subcategory, SubSubcategory, ProductWithRelations, ProductWithOffer, Offer, computeDiscountedPrice } from '@/types'
 import { TablesInsert } from '@/types/database.types'
 import { getCurrentProfile } from './auth'
 import { revalidatePath } from 'next/cache'
+import { getActiveOffersForProducts } from './offers'
 
 type ProductInsert = TablesInsert<'products'>
+
+async function attachOffersToProducts<T extends Product>(products: T[]): Promise<(T & { active_offer: Offer | null; discounted_price: number | null })[]> {
+  if (products.length === 0) return [];
+  const productIds = products.map((p) => p.id);
+  const offersMap = await getActiveOffersForProducts(productIds);
+  return products.map((p) => {
+    const offer = offersMap.get(p.id) || null;
+    const discountedPrice = offer ? computeDiscountedPrice(p.price, offer) : null;
+    return {
+      ...p,
+      active_offer: offer,
+      discounted_price: discountedPrice,
+    };
+  });
+}
 
 export async function getProducts(categorySlug?: string): Promise<Product[]> {
   const supabase = await createClient()
@@ -39,7 +55,7 @@ export async function getAllProductsForShop(options?: {
   page?: number
   pageSize?: number
 }): Promise<{
-  products: (Product & { categories: Category | null })[]
+  products: (Product & { categories: Category | null; active_offer?: Offer | null; discounted_price?: number | null })[]
   totalCount: number
   currentPage: number
   totalPages: number
@@ -148,8 +164,10 @@ export async function getAllProductsForShop(options?: {
   const totalCount = count ?? 0
   const totalPages = Math.ceil(totalCount / pageSize)
 
+  const decoratedProducts = await attachOffersToProducts(data ?? [])
+
   return {
-    products: (data ?? []) as (Product & { categories: Category | null })[],
+    products: decoratedProducts as (Product & { categories: Category | null; active_offer?: Offer | null; discounted_price?: number | null })[],
     totalCount,
     currentPage: page,
     totalPages,
@@ -200,7 +218,7 @@ export async function getProductsByCategory(
     inStockOnly?: boolean
   }
 ): Promise<{
-  products: ProductWithRelations[]
+  products: (ProductWithRelations & { active_offer?: Offer | null; discounted_price?: number | null })[]
   category: Category | null
   subcategory: Subcategory | null
   subSubcategory: SubSubcategory | null
@@ -285,7 +303,9 @@ export async function getProductsByCategory(
     return { products: [], category: category as Category, subcategory, subSubcategory }
   }
 
-  return { products: products as any[], category: category as Category, subcategory, subSubcategory }
+  const decoratedProducts = await attachOffersToProducts(products ?? [])
+
+  return { products: decoratedProducts as any[], category: category as Category, subcategory, subSubcategory }
 }
 
 export async function searchProducts(
@@ -305,12 +325,8 @@ export async function searchProducts(
     .or(`name_en.ilike.%${query}%, name_ar.ilike.%${query}%, description_en.ilike.%${query}%, description_ar.ilike.%${query}%`)
     .limit(options?.limit ?? 20)
 
-  if (error) {
-    console.error('Error searching products:', error)
-    return []
-  }
-
-  return data as Product[]
+  const decorated = await attachOffersToProducts(data ?? [])
+  return decorated as Product[]
 }
 
 export async function getFeaturedProducts() {
@@ -324,7 +340,8 @@ export async function getFeaturedProducts() {
     return { phones: [], accessories: [], vapes: [] }
   }
   
-  const products = data as (Product & { categories: { slug: string } })[]
+  const decorated = await attachOffersToProducts(data ?? [])
+  const products = decorated as (Product & { categories: { slug: string } })[]
 
   return {
     phones: products.filter(p => p.categories.slug === 'phones'),

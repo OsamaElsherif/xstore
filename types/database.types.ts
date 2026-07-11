@@ -39,6 +39,81 @@ export type Database = {
   }
   public: {
     Tables: {
+      offers: {
+        Row: {
+          id: string
+          name: string
+          description: string | null
+          discount_type: Database["public"]["Enums"]["discount_type"]
+          discount_value: number
+          start_date: string | null
+          end_date: string | null
+          is_active: boolean
+          created_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          id?: string
+          name: string
+          description?: string | null
+          discount_type: Database["public"]["Enums"]["discount_type"]
+          discount_value: number
+          start_date?: string | null
+          end_date?: string | null
+          is_active?: boolean
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          id?: string
+          name?: string
+          description?: string | null
+          discount_type?: Database["public"]["Enums"]["discount_type"]
+          discount_value?: number
+          start_date?: string | null
+          end_date?: string | null
+          is_active?: boolean
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      offer_products: {
+        Row: {
+          id: string
+          offer_id: string
+          product_id: string
+          created_at: string | null
+        }
+        Insert: {
+          id?: string
+          offer_id: string
+          product_id: string
+          created_at?: string | null
+        }
+        Update: {
+          id?: string
+          offer_id?: string
+          product_id?: string
+          created_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "offer_products_offer_id_fkey"
+            columns: ["offer_id"]
+            isOneToOne: false
+            referencedRelation: "offers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "offer_products_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       whatsapp_templates: {
         Row: {
           id: string
@@ -525,6 +600,7 @@ export type Database = {
       order_status: "NOT_DONE" | "UNDER_REPAIR" | "DONE"
       payment_status: "PAID" | "UNPAID"
       user_role: "ADMIN" | "CASHIER" | "ORDER_RECEIVER" | "CUSTOMER"
+      discount_type: "PERCENTAGE" | "FIXED"
     }
     CompositeTypes: {
       [_ in never]: never

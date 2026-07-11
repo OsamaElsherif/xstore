@@ -6,17 +6,19 @@ import Link from 'next/link';
 import { ShoppingCart, Star, Minus, Plus, ChevronRight, ChevronLeft, AlertCircle } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useCart } from '@/contexts/CartContext';
-import { Product, Category } from '@/types';
+import { Product, Category, Offer, computeDiscountedPrice } from '@/types';
 import { getProductImageUrl } from '@/lib/supabase/storage';
 import WishlistButton from './WishlistButton';
 import { createClient } from '@/lib/supabase/client';
+import PriceDisplay from './PriceDisplay';
 
 interface ProductPageProps {
   product: Product & { categories: Category | null };
   relatedProducts: Product[];
+  activeOffer?: Offer | null;
 }
 
-export default function ProductPage({ product, relatedProducts }: ProductPageProps) {
+export default function ProductPage({ product, relatedProducts, activeOffer }: ProductPageProps) {
   const [quantity, setQuantity] = useState(1);
   const [currentStock, setCurrentStock] = useState<number | null>(product.stock_quantity);
   const { t, language } = useLanguage();
@@ -47,7 +49,7 @@ export default function ProductPage({ product, relatedProducts }: ProductPagePro
 
   const handleAddToCart = () => {
     for (let i = 0; i < quantity; i++) {
-      addToCart(product);
+      addToCart(product, activeOffer);
     }
   };
 
@@ -107,8 +109,13 @@ export default function ProductPage({ product, relatedProducts }: ProductPagePro
 
           <h1 className="text-3xl md:text-4xl font-display font-bold text-brand-dark mb-4">{name}</h1>
           
-          <div className="text-2xl font-bold text-brand-orange mb-6">
-            {t('egp')} {product.price.toLocaleString()}
+          <div className="mb-6">
+            <PriceDisplay
+              originalPrice={product.price}
+              discountedPrice={activeOffer ? computeDiscountedPrice(product.price, activeOffer) : null}
+              activeOffer={activeOffer}
+              size="lg"
+            />
           </div>
 
           <div className="prose prose-brand max-w-none mb-8 text-brand-dark/70 leading-relaxed">

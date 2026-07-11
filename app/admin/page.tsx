@@ -8,7 +8,8 @@ import {
   Package,
   Clock,
   CheckCircle2,
-  AlertCircle
+  AlertCircle,
+  Tag,
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -32,6 +33,14 @@ export default async function AdminDashboard() {
   const { count: totalProducts } = await supabase
     .from('products')
     .select('*', { count: 'exact', head: true });
+
+  const now = new Date().toISOString()
+  const { count: activeOffers } = await supabase
+    .from('offers')
+    .select('*', { count: 'exact', head: true })
+    .eq('is_active', true)
+    .or(`start_date.is.null,start_date.lte.${now}`)
+    .or(`end_date.is.null,end_date.gte.${now}`)
 
   const role = profile.role;
 
@@ -80,6 +89,13 @@ export default async function AdminDashboard() {
               subValue="In stock"
               icon={Package}
               color="green"
+            />
+            <StatCard
+              title="Active Offers"
+              value={activeOffers?.toString() || '0'}
+              subValue="Running promotions"
+              icon={Tag}
+              color="purple"
             />
           </>
         )}
@@ -141,6 +157,7 @@ export default async function AdminDashboard() {
               <QuickActionCard title="User Management" href="/admin/users" description="Manage staff and customer accounts" />
               <QuickActionCard title="WA Sessions" href="/admin/whatsapp-sessions" description="Manage all Wasender WhatsApp sessions and connection status" />
               <QuickActionCard title="WhatsApp Templates" href="/admin/whatsapp-templates" description="Create and configure notification message templates" />
+              <QuickActionCard title="Manage Offers" href="/admin/offers" description="Create percentage or fixed-amount promotions for products" />
             </>
           )}
           {role === 'CASHIER' && (

@@ -1,4 +1,5 @@
 import { getProductById, getRelatedProducts } from '@/lib/actions/products'
+import { getActiveOfferForProduct } from '@/lib/actions/offers'
 import { notFound } from 'next/navigation'
 import ProductPage from '@/components/products/ProductPage'
 import Navbar from '@/components/Navbar'
@@ -10,13 +11,19 @@ interface PageProps {
 
 export default async function Page({ params }: PageProps) {
   const { id } = await params
+  
+  // Fetch product first to get the category_id
   const product = await getProductById(id)
 
   if (!product) {
     notFound()
   }
 
-  const relatedProducts = product.category_id ? await getRelatedProducts(product.category_id, id) : []
+  // Fetch active offer and related products in parallel
+  const [activeOffer, relatedProducts] = await Promise.all([
+    getActiveOfferForProduct(id),
+    product.category_id ? getRelatedProducts(product.category_id, id) : Promise.resolve([])
+  ])
 
   return (
     <main className="min-h-screen flex flex-col bg-brand-light/30">
@@ -24,7 +31,8 @@ export default async function Page({ params }: PageProps) {
       <div className="flex-1 max-w-7xl mx-auto px-6 py-12 w-full">
         <ProductPage 
           product={product} 
-          relatedProducts={relatedProducts} 
+          relatedProducts={relatedProducts}
+          activeOffer={activeOffer}
         />
       </div>
       <Footer />

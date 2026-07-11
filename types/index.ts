@@ -16,6 +16,9 @@ export type Wishlist = Tables<'wishlists'>
 export type MaintenanceRequest = Tables<'maintenance_requests'>
 export type AppSetting = Tables<'app_settings'>
 export type WhatsAppTemplate = Tables<'whatsapp_templates'>
+export type Offer = Tables<'offers'>
+export type OfferProduct = Tables<'offer_products'>
+export type DiscountType = Enums<'discount_type'>
 
 // Typed settings map — used throughout the app
 export type SettingsMap = {
@@ -80,6 +83,31 @@ export type ProductWithRelations = Product & {
   categories: Category | null
   subcategories: Subcategory | null
   sub_subcategories: SubSubcategory | null
+}
+
+// ─── Offers & Discounts ────────────────────────────────────────────────────────
+
+export type OfferWithProducts = Offer & {
+  offer_products: (OfferProduct & { products: Product | null })[]
+}
+
+export type ProductWithOffer = Product & {
+  active_offer: Offer | null
+  discounted_price: number | null
+}
+
+/**
+ * Pure helper — computes the effective price for a product given an active offer.
+ * Returns the original price if no offer is provided or the offer is invalid.
+ */
+export function computeDiscountedPrice(originalPrice: number, offer: Offer | null | undefined): number {
+  if (!offer) return originalPrice
+  if (offer.discount_type === 'PERCENTAGE') {
+    const discount = Math.min(100, Math.max(0, offer.discount_value))
+    return Math.max(0, originalPrice * (1 - discount / 100))
+  }
+  // FIXED
+  return Math.max(0, originalPrice - offer.discount_value)
 }
 
 // ─── Wasender Session Management ──────────────────────────────────────────────

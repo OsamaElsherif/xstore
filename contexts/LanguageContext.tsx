@@ -140,6 +140,7 @@ const translations = {
     labelUpdated: "Updated",
     btnCancel: "Cancel",
     btnSave: "Save",
+    off: "OFF",
   },
   ar: {
     searchPlaceholder: "البحث عن المنتجات...",
@@ -276,6 +277,7 @@ const translations = {
     labelUpdated: "تم التحديث",
     btnCancel: "إلغاء",
     btnSave: "حفظ",
+    off: "خصم",
   }
 };
 

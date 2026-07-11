@@ -17,6 +17,7 @@ import {
   BarChart3,
   MessageSquare,
   Smartphone,
+  Tag,
 } from 'lucide-react';
 import { Profile } from '@/types';
 import { signOut } from '@/lib/actions/auth';
@@ -41,6 +42,7 @@ const navItems = [
     items: [
       { label: 'Products', href: '/admin/products', icon: Package },
       { label: 'Categories', href: '/admin/categories', icon: FolderOpen },
+      { label: 'Offers', href: '/admin/offers', icon: Tag },
     ],
   },
   {
