@@ -532,7 +532,7 @@ export default function WhatsAppTab({ settings, onSave, isSaving }: WhatsAppTabP
               <PhoneInput
                 value={testPhone}
                 onChange={setTestPhone}
-                onKeyDown={e => e.key === 'Enter' && handleTestMessage()}
+                // onKeyDown={e => e.key === 'Enter' && handleTestMessage()}
                 placeholder="1012345678"
                 className="bg-gray-50"
               />
