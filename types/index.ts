@@ -50,6 +50,7 @@ export type EventKey =
   | 'maintenance_received'
   | 'maintenance_status_update'
   | 'account_created'
+  | 'whatsapp_optin'
 
 export type OrderStatus = Enums<'order_status'>    // 'NOT_DONE' | 'UNDER_REPAIR' | 'DONE'
 export type PaymentStatus = Enums<'payment_status'> // 'PAID' | 'UNPAID'

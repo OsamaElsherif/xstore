@@ -7,6 +7,7 @@ import { revalidatePath } from 'next/cache'
 import { sendMaintenanceConfirmationEmail, sendMaintenanceStatusUpdateEmail } from '@/lib/email/sendEmail'
 import { sendWhatsAppMessage } from '@/lib/whatsapp/sendWhatsApp'
 import { getSetting } from '@/lib/actions/settings'
+import { getUserWhatsappPreference } from '@/lib/actions/profile'
 
 // Submit a new maintenance request (public)
 export async function submitMaintenanceRequest(data: {
@@ -59,20 +60,25 @@ export async function submitMaintenanceRequest(data: {
 
   // Send WhatsApp notification
   const notifyMaintenance = await getSetting('whatsapp_notify_maintenance')
-  if (notifyMaintenance === 'true' && data.customer_phone) {
-    try {
-      await sendWhatsAppMessage({
-        to: data.customer_phone,
-        eventKey: 'maintenance_received',
-        variables: [
-          data.customer_name,
-          request.request_number ?? '',
-          data.device_brand,
-          data.device_type,
-        ],
-      })
-    } catch (waError) {
-      console.error('Maintenance WhatsApp notification failed:', waError)
+  if (notifyMaintenance === 'true') {
+    if (data.user_id) {
+      try {
+        const pref = await getUserWhatsappPreference(data.user_id)
+        if (pref.opted_in && pref.phone) {
+          await sendWhatsAppMessage({
+            to: pref.phone,
+            eventKey: 'maintenance_received',
+            variables: [
+              data.customer_name,
+              request.request_number ?? '',
+              data.device_brand,
+              data.device_type,
+            ],
+          })
+        }
+      } catch (waError) {
+        console.error('Maintenance WhatsApp notification failed:', waError)
+      }
     }
   }
 
@@ -149,7 +155,7 @@ export async function updateMaintenanceStatus(
   if (emailTriggerStatuses.includes(status)) {
     const { data: request } = await supabase
       .from('maintenance_requests')
-      .select('customer_email, customer_phone, customer_name, request_number, customer_notes, estimated_cost, actual_cost')
+      .select('user_id, customer_email, customer_phone, customer_name, request_number, customer_notes, estimated_cost, actual_cost')
       .eq('id', id)
       .single()
 
@@ -173,27 +179,32 @@ export async function updateMaintenanceStatus(
 
       // 2. Send WhatsApp
       const notifyStatus = await getSetting('whatsapp_notify_status_update')
-      if (notifyStatus === 'true' && request.customer_phone) {
-        const statusLabels: Record<string, string> = {
-          IN_PROGRESS:   'قيد الإصلاح / In Progress',
-          WAITING_PARTS: 'في انتظار القطع / Waiting for Parts',
-          DONE:          'جاهز للاستلام ✅ / Ready for Pickup',
-          CANCELLED:     'تم الإلغاء ❌ / Cancelled',
-        }
+      if (notifyStatus === 'true') {
+        if (request.user_id) {
+          try {
+            const pref = await getUserWhatsappPreference(request.user_id)
+            if (pref.opted_in && pref.phone) {
+              const statusLabels: Record<string, string> = {
+                IN_PROGRESS:   'قيد الإصلاح / In Progress',
+                WAITING_PARTS: 'في انتظار القطع / Waiting for Parts',
+                DONE:          'جاهز للاستلام ✅ / Ready for Pickup',
+                CANCELLED:     'تم الإلغاء ❌ / Cancelled',
+              }
 
-        try {
-          await sendWhatsAppMessage({
-            to: request.customer_phone,
-            eventKey: 'maintenance_status_update',
-            variables: [
-              request.customer_name,
-              request.request_number ?? '',
-              statusLabels[status] ?? status,
-              request.customer_notes ?? '',
-            ],
-          })
-        } catch (waError) {
-          console.error('Maintenance status WhatsApp notification failed:', waError)
+              await sendWhatsAppMessage({
+                to: pref.phone,
+                eventKey: 'maintenance_status_update',
+                variables: [
+                  request.customer_name,
+                  request.request_number ?? '',
+                  statusLabels[status] ?? status,
+                  request.customer_notes ?? '',
+                ],
+              })
+            }
+          } catch (waError) {
+            console.error('Maintenance status WhatsApp notification failed:', waError)
+          }
         }
       }
     }

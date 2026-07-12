@@ -7,6 +7,7 @@ import { getCurrentProfile } from "@/lib/actions/auth"
 import { sendOrderConfirmationEmail } from '@/lib/email/sendEmail'
 import { sendWhatsAppMessage } from '@/lib/whatsapp/sendWhatsApp'
 import { getSetting } from '@/lib/actions/settings'
+import { getUserWhatsappPreference } from '@/lib/actions/profile'
 
 export type OrderInsertPayload = {
   customer_name: string
@@ -106,19 +107,24 @@ export async function createOrder(data: OrderInsertPayload): Promise<{ success: 
 
   // Send WhatsApp notification
   const notifyOrders = await getSetting('whatsapp_notify_orders')
-  if (notifyOrders === 'true' && data.customer_phone) {
-    try {
-      await sendWhatsAppMessage({
-        to: data.customer_phone,
-        eventKey: 'order_placed',
-        variables: [
-          data.customer_name,
-          order.order_number ?? '',
-          String(data.total_price),
-        ],
-      })
-    } catch (waError) {
-      console.error('Order WhatsApp notification failed:', waError)
+  if (notifyOrders === 'true') {
+    if (data.user_id) {
+      try {
+        const pref = await getUserWhatsappPreference(data.user_id)
+        if (pref.opted_in && pref.phone) {
+          await sendWhatsAppMessage({
+            to: pref.phone,
+            eventKey: 'order_placed',
+            variables: [
+              data.customer_name,
+              order.order_number ?? '',
+              String(data.total_price),
+            ],
+          })
+        }
+      } catch (waError) {
+        console.error('Order WhatsApp notification failed:', waError)
+      }
     }
   }
 
@@ -343,19 +349,24 @@ export async function createOrderOnBehalf(data: {
 
   // Send WhatsApp notification
   const notifyOrders = await getSetting('whatsapp_notify_orders')
-  if (notifyOrders === 'true' && customer.customer_phone) {
-    try {
-      await sendWhatsAppMessage({
-        to: customer.customer_phone,
-        eventKey: 'order_placed',
-        variables: [
-          customer.customer_name,
-          order.order_number ?? '',
-          String(data.total_price),
-        ],
-      })
-    } catch (waError) {
-      console.error('Order WhatsApp notification failed:', waError)
+  if (notifyOrders === 'true') {
+    if (customer.user_id) {
+      try {
+        const pref = await getUserWhatsappPreference(customer.user_id)
+        if (pref.opted_in && pref.phone) {
+          await sendWhatsAppMessage({
+            to: pref.phone,
+            eventKey: 'order_placed',
+            variables: [
+              customer.customer_name,
+              order.order_number ?? '',
+              String(data.total_price),
+            ],
+          })
+        }
+      } catch (waError) {
+        console.error('Order WhatsApp notification failed:', waError)
+      }
     }
   }
 

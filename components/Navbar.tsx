@@ -284,6 +284,9 @@ export default function Navbar() {
                     </span>
                   )}
                 </Link>
+                <Link href="/profile" className="text-brand-gray hover:text-brand-orange transition-colors" title={t('myProfile')}>
+                  <User size={24} />
+                </Link>
                 <Link href="/maintenance" className="hidden sm:flex items-center gap-3 p-3 rounded-xl text-brand-gray hover:text-white hover:bg-brand-light/10 transition-all">
                   <Wrench size={20} />
                   Maintenance
@@ -467,6 +470,10 @@ export default function Navbar() {
         <div className="p-6 border-t border-brand-gray/20">
           {user ? (
             <div className="space-y-2">
+              <Link href="/profile" className="flex items-center gap-3 w-full p-3 rounded-xl text-brand-gray hover:text-white hover:bg-brand-light/10 transition-all" onClick={toggleMobileMenu}>
+                <User size={20} />
+                {t('myProfile')}
+              </Link>
               <Link href="/wishlist" className="flex items-center gap-3 w-full p-3 rounded-xl text-brand-gray hover:text-white hover:bg-brand-light/10 transition-all" onClick={toggleMobileMenu}>
                 <Heart size={20} />
                 Wishlist ({wishlistItems.length})
