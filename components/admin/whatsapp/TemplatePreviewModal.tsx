@@ -48,7 +48,7 @@ export default function TemplatePreviewModal({ template, onClose }: Props) {
         {/* Header */}
         <div className="flex items-center justify-between px-8 py-5 border-b border-gray-100">
           <div>
-            <h2 className="text-xl font-black text-slate-800">📱 Preview: {template.name}</h2>
+            <h2 className="text-xl font-black text-slate-800">Preview: {template.name}</h2>
             <p className="text-xs text-gray-400 font-mono mt-0.5">{template.event_key}</p>
           </div>
           <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-xl transition-colors">

@@ -132,7 +132,7 @@ export function EditSessionModal({ session, onSuccess, onClose }: EditSessionMod
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
           {error && (
             <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-red-600 text-sm font-medium">
-              ❌ {error}
+              {error}
             </div>
           )}
 

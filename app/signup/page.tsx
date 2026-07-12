@@ -208,7 +208,6 @@ export default function Signup() {
           {step === 'whatsapp' && (
             <div className="space-y-5">
               <div className="text-center space-y-1">
-                <p className="text-2xl">📱</p>
                 <h3 className="font-bold text-gray-800 text-lg">
                   {t('whatsappNotificationsTitle')}
                 </h3>

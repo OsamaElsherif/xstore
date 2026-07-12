@@ -19,7 +19,7 @@ const SAMPLE_VALUES: Record<string, string> = {
   request_number:     'MR-1001',
   device_brand:       'Apple',
   device_type:        'iPhone 13 Pro',
-  status_label:       'جاهز للاستلام ✅',
+  status_label:       'جاهز للاستلام',
   customer_notes:     'الجهاز جاهز، تواصل معنا',
   email:              'ahmed@example.com',
   temporary_password: 'Jacob-4829-Store',
@@ -256,7 +256,7 @@ export default function TemplateForm({ template, onSuccess, onCancel }: Template
               rows={7}
               value={bodyAr}
               onChange={e => setBodyAr(e.target.value)}
-              placeholder={'مرحباً {0} 👋\n\nتم تأكيد طلبك رقم {1}'}
+              placeholder={'مرحباً {0}\n\nتم تأكيد طلبك رقم {1}'}
               className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-indigo-400 outline-none text-sm resize-none leading-relaxed transition-all"
             />
           </div>
@@ -275,7 +275,7 @@ export default function TemplateForm({ template, onSuccess, onCancel }: Template
               rows={7}
               value={bodyEn}
               onChange={e => setBodyEn(e.target.value)}
-              placeholder={'Hello {0} 👋\n\nYour order {1} has been confirmed!'}
+              placeholder={'Hello {0}\n\nYour order {1} has been confirmed!'}
               className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-indigo-400 outline-none text-sm resize-none leading-relaxed transition-all"
             />
           </div>
@@ -314,7 +314,7 @@ export default function TemplateForm({ template, onSuccess, onCancel }: Template
         <div className="xl:col-span-2">
           <div className="sticky top-6 space-y-4">
             <div className="flex items-center justify-between">
-              <p className="text-sm font-bold text-gray-600">📱 Message Preview</p>
+              <p className="text-sm font-bold text-gray-600">Message Preview</p>
               <div className="flex gap-1">
                 {(['ar', 'en'] as const).map(l => (
                   <button

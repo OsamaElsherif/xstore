@@ -188,7 +188,7 @@ export default function CreateOrderForm({ products, categories }: CreateOrderFor
                   </div>
                 </div>
                 <p className="text-[10px] text-blue-400 text-center font-bold uppercase tracking-widest pt-2">
-                  ⚠️ Share these credentials with the customer
+                  Share these credentials with the customer
                 </p>
               </div>
             )}

@@ -142,7 +142,7 @@ export default function MetaAdsTab({ settings, onSave, isSaving }: MetaAdsTabPro
             className="w-full px-5 py-3 bg-gray-50 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-pink-500 outline-none transition-all"
           />
           <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-1 ps-2">
-            {formData.meta_pixel_id ? '✅ Pixel active on site' : '⚠️ No pixel configured'}
+            {formData.meta_pixel_id ? 'Pixel active on site' : 'No pixel configured'}
           </p>
         </div>
       </div>

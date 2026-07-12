@@ -197,8 +197,8 @@ export default function WhatsAppTab({ settings, onSave, isSaving }: WhatsAppTabP
     setTestResult({
       success: result.success,
       message: result.success
-        ? '✅ Test message sent successfully!'
-        : `❌ ${result.error ?? 'Unknown error'}`,
+        ? 'Test message sent successfully!'
+        : `${result.error ?? 'Unknown error'}`,
     });
     setIsTesting(false);
   };
@@ -265,7 +265,7 @@ export default function WhatsAppTab({ settings, onSave, isSaving }: WhatsAppTabP
       {/* Error banner */}
       {error && (
         <div className="p-4 bg-red-50 border border-red-200 rounded-2xl text-red-600 text-sm font-medium flex items-start gap-3">
-          <span className="shrink-0 mt-0.5">❌</span>
+          <span className="shrink-0 mt-0.5 font-bold">Error:</span>
           <span>{error}</span>
           <button onClick={() => setError(null)} className="ms-auto text-red-400 hover:text-red-600 shrink-0">✕</button>
         </div>
@@ -278,7 +278,7 @@ export default function WhatsAppTab({ settings, onSave, isSaving }: WhatsAppTabP
         <div className="space-y-6">
           <div>
             <h3 className="text-xl font-black text-slate-800 flex items-center gap-2 mb-1">
-              📱 WhatsApp Setup
+              WhatsApp Setup
             </h3>
             <StepIndicator current={1} />
           </div>
@@ -308,7 +308,7 @@ export default function WhatsAppTab({ settings, onSave, isSaving }: WhatsAppTabP
           </div>
 
           <div className="p-4 bg-amber-50 border border-amber-200 rounded-2xl text-amber-700 text-sm flex items-start gap-2">
-            <span className="shrink-0">⚠️</span>
+            <span className="shrink-0 font-bold">Warning:</span>
             <span>Once saved, this token <strong>cannot be changed here</strong>. Contact your developer to update it.</span>
           </div>
 
@@ -333,7 +333,7 @@ export default function WhatsAppTab({ settings, onSave, isSaving }: WhatsAppTabP
         <div className="space-y-6">
           <div>
             <h3 className="text-xl font-black text-slate-800 flex items-center gap-2 mb-1">
-              📱 WhatsApp Setup
+              WhatsApp Setup
             </h3>
             <StepIndicator current={2} />
           </div>
@@ -390,7 +390,7 @@ export default function WhatsAppTab({ settings, onSave, isSaving }: WhatsAppTabP
         <div className="space-y-6">
           <div>
             <h3 className="text-xl font-black text-slate-800 flex items-center gap-2 mb-1">
-              📱 WhatsApp Setup
+              WhatsApp Setup
             </h3>
             <StepIndicator current={3} />
           </div>
@@ -509,7 +509,7 @@ export default function WhatsAppTab({ settings, onSave, isSaving }: WhatsAppTabP
             <div>
               <div className="flex items-center gap-2">
                 <div className="w-2.5 h-2.5 bg-green-500 rounded-full animate-pulse" />
-                <p className="font-black text-green-800 text-lg">WhatsApp Connected ✅</p>
+                <p className="font-black text-green-800 text-lg">WhatsApp Connected</p>
               </div>
               <p className="text-sm text-green-600 mt-0.5">Session is active and ready to send messages.</p>
             </div>

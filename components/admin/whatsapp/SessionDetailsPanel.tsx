@@ -106,7 +106,7 @@ export function SessionDetailsPanel({ sessionId, initialSession }: SessionDetail
                   ? 'bg-green-50 text-green-700 border border-green-200'
                   : 'bg-slate-100 text-slate-600'
               }`}>
-                {session.account_protection ? '✅ Enabled' : 'Disabled'}
+                {session.account_protection ? 'Enabled' : 'Disabled'}
               </span>
             </div>
             <div className="flex items-center justify-between p-3.5 text-sm">
@@ -116,7 +116,7 @@ export function SessionDetailsPanel({ sessionId, initialSession }: SessionDetail
                   ? 'bg-green-50 text-green-700 border border-green-200'
                   : 'bg-slate-100 text-slate-600'
               }`}>
-                {session.log_messages ? '✅ Enabled' : 'Disabled'}
+                {session.log_messages ? 'Enabled' : 'Disabled'}
               </span>
             </div>
           </div>
@@ -152,7 +152,7 @@ export function SessionDetailsPanel({ sessionId, initialSession }: SessionDetail
                   ? 'bg-indigo-50 text-indigo-700 border border-indigo-200'
                   : 'bg-slate-100 text-slate-600'
               }`}>
-                {session.webhook_enabled ? '✅ Yes' : 'No'}
+                {session.webhook_enabled ? 'Yes' : 'No'}
               </span>
             </div>
             
