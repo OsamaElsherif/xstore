@@ -91,7 +91,7 @@ export function WhatsAppPreferences({
             {t('whatsappInfoNote')}
           </p>
           <a
-            href={`https://wa.me/201011501507?text=${language === 'ar' ? '%D8%A5%D8%B4%D8%B9%D8%A7%D8%B1' : 'Notification'}`}
+            href={`https://wa.me/+201039142008?text=${language === 'ar' ? '%D8%A7%D8%B4%D8%B9%D8%A7%D8%B1' : 'Notification'}`}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-green-500 hover:bg-green-600 text-white text-xs font-bold rounded-xl transition-colors w-full"
