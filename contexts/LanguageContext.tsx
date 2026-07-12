@@ -168,6 +168,7 @@ const translations = {
     notChosenError: "Please choose a notification preference",
     enterWhatsAppPhoneError: "Please enter your WhatsApp number",
     passwordLengthError: "Password must be at least 8 characters",
+    whatsappMeAction: "Send WhatsApp Message 💬",
   },
   ar: {
     searchPlaceholder: "البحث عن المنتجات...",
@@ -332,6 +333,7 @@ const translations = {
     notChosenError: "يرجى اختيار تفضيل الإشعارات",
     enterWhatsAppPhoneError: "يرجى إدخال رقم واتساب الخاص بك",
     passwordLengthError: "يجب أن تكون كلمة المرور 8 أحرف على الأقل",
+    whatsappMeAction: "إرسال رسالة عبر واتساب 💬",
   }
 };
 
