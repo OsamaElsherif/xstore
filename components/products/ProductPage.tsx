@@ -125,23 +125,14 @@ export default function ProductPage({ product, relatedProducts, activeOffer }: P
           {/* Stock Status */}
           <div className="mb-8">
             {!product.is_service && (
-              <div className="space-y-4">
-                <div className="flex items-center gap-2">
-                  <span className="text-sm font-medium text-brand-dark/60">Status:</span>
-                  {currentStock !== null && currentStock > 0 ? (
-                    <span className="text-sm font-bold text-green-600">
-                      {currentStock.toLocaleString()} {t('units')}
-                    </span>
-                  ) : (
-                    <span className="text-sm font-bold text-red-500">{t('outOfStock')}</span>
-                  )}
-                </div>
-                
-                {currentStock !== null && currentStock > 0 && currentStock < 5 && (
-                  <div className="flex items-center gap-2 p-3 bg-yellow-50 text-yellow-800 rounded-xl border border-yellow-100 text-sm font-medium">
-                    <AlertCircle size={18} />
-                    {t('lowStock').replace('{n}', String(currentStock))}
-                  </div>
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-medium text-brand-dark/60">Status:</span>
+                {currentStock !== null && currentStock > 0 ? (
+                  <span className="text-sm font-bold text-green-600">
+                    {t('available')}
+                  </span>
+                ) : (
+                  <span className="text-sm font-bold text-red-500">{t('unavailable')}</span>
                 )}
               </div>
             )}

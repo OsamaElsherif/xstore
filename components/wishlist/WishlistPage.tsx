@@ -85,8 +85,8 @@ export default function WishlistPage({ initialItems }: WishlistPageProps) {
                 {!product.is_service && (
                   <p className={`text-sm mt-2 font-medium ${(product.stock_quantity ?? 0) > 0 ? 'text-green-600' : 'text-red-500'}`}>
                     {(product.stock_quantity ?? 0) > 0
-                      ? `${(product.stock_quantity ?? 0).toLocaleString()} ${t('units')}`
-                      : t('outOfStock')}
+                      ? t('available')
+                      : t('unavailable')}
                   </p>
                 )}
               </div>
