@@ -3,12 +3,12 @@
 import { useState, useMemo } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { ShoppingCart, Star, Filter, ArrowUpDown, PackageX, Search, ChevronRight, Home, Grid3X3 } from 'lucide-react';
+import { Filter, ArrowUpDown, PackageX, Search, ChevronRight, Home, Grid3X3 } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useCart } from '@/contexts/CartContext';
 import { Product, Category, Subcategory, SubSubcategory, ProductWithRelations } from '@/types';
 import { getProductImageUrl } from '@/lib/supabase/storage';
-import WishlistButton from '../products/WishlistButton';
+import ProductCard from '@/components/shop/ProductCard';
 
 interface CategoryPageProps {
   initialProducts: ProductWithRelations[];
@@ -385,7 +385,7 @@ export default function CategoryPage({ initialProducts, category, subcategory, s
           {filteredAndSortedProducts.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
               {filteredAndSortedProducts.map((product) => (
-                <ProductCard key={product.id} product={product} />
+                <ProductCard key={product.id} product={product as any} view="grid" />
               ))}
             </div>
           ) : (
@@ -411,68 +411,4 @@ export default function CategoryPage({ initialProducts, category, subcategory, s
   );
 }
 
-function ProductCard({ product }: { product: Product }) {
-  const { t, language } = useLanguage();
-  const { addToCart } = useCart();
-  const name = language === 'ar' ? product.name_ar : product.name_en;
-  
-  return (
-    <div className="group bg-white rounded-3xl overflow-hidden border border-brand-gray/10 hover:shadow-2xl hover:shadow-brand-dark/5 transition-all duration-500 flex flex-col h-full relative">
-      {/* Badge */}
-      {product.badge && (
-        <div className="absolute top-4 ltr:left-4 rtl:right-4 z-10 bg-brand-orange text-brand-dark text-[10px] font-black px-2.5 py-1 rounded-lg uppercase tracking-tighter shadow-sm">
-          {product.badge}
-        </div>
-      )}
 
-      {/* Wishlist Button */}
-      <WishlistButton 
-        productId={product.id} 
-        size="sm" 
-        className="absolute top-4 ltr:right-4 rtl:left-4 z-10 p-2.5 bg-white/80 backdrop-blur-md rounded-xl shadow-sm hover:bg-white transition-colors"
-      />
-
-      {/* Image */}
-      <Link href={`/products/${product.id}`} className="relative aspect-square bg-brand-light/20 overflow-hidden block">
-        <Image
-          src={getProductImageUrl(product.image_url) || '/placeholder-product.png'}
-          alt={name}
-          fill
-          className="object-contain p-6 transition-transform duration-700 group-hover:scale-110"
-        />
-        {product.stock_quantity === 0 && !product.is_service && (
-          <div className="absolute inset-0 bg-white/60 backdrop-blur-[2px] flex items-center justify-center">
-            <span className="px-4 py-2 bg-brand-dark text-white text-xs font-black rounded-lg uppercase">Out of Stock</span>
-          </div>
-        )}
-      </Link>
-
-      {/* Content */}
-      <div className="p-6 flex flex-col flex-1">
-        <div className="flex items-center gap-1 mb-3">
-          <Star size={12} className="fill-brand-orange text-brand-orange" />
-          <span className="text-xs font-black text-brand-dark">{product.rating || 0}</span>
-          <span className="text-[10px] text-brand-dark/40 font-medium">({product.reviews_count || 0})</span>
-        </div>
-
-        <Link href={`/products/${product.id}`} className="block mb-2 group-hover:text-brand-orange transition-colors">
-          <h3 className="font-bold text-brand-dark line-clamp-2 leading-tight">{name}</h3>
-        </Link>
-
-        <p className="text-xl font-black text-brand-orange mt-auto mb-6">
-          <span className="text-xs font-medium ltr:mr-1 rtl:ml-1">{t('egp')}</span>
-          {product.price.toLocaleString()}
-        </p>
-
-        <button
-          onClick={() => addToCart(product)}
-          disabled={product.stock_quantity === 0 && !product.is_service}
-          className="w-full py-3.5 bg-brand-dark text-brand-light rounded-2xl font-bold text-sm flex items-center justify-center gap-2 hover:bg-brand-orange hover:text-brand-dark transition-all active:scale-95 disabled:opacity-50 disabled:active:scale-100"
-        >
-          <ShoppingCart size={16} />
-          {product.is_service ? "Book Service" : t('addToCart')}
-        </button>
-      </div>
-    </div>
-  );
-}

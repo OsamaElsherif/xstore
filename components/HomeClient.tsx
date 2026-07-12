@@ -5,13 +5,13 @@ import { Filter } from 'lucide-react';
 import Sidebar from '@/components/Sidebar';
 import FeaturedProducts from '@/components/FeaturedProducts';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { Product, Category } from '@/types';
+import { Product, Category, Offer } from '@/types';
 
 interface HomeClientProps {
   featuredProducts: {
-    phones: Product[];
-    accessories: Product[];
-    vapes: Product[];
+    phones: (Product & { active_offer?: Offer | null; discounted_price?: number | null })[];
+    accessories: (Product & { active_offer?: Offer | null; discounted_price?: number | null })[];
+    vapes: (Product & { active_offer?: Offer | null; discounted_price?: number | null })[];
   };
   categories: Category[];
 }
