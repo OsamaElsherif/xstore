@@ -1,8 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { Filter } from 'lucide-react';
-import Sidebar from '@/components/Sidebar';
+// import { Filter } from 'lucide-react';
+// import Sidebar from '@/components/Sidebar';
 import FeaturedProducts from '@/components/FeaturedProducts';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Product, Category, Offer } from '@/types';
@@ -22,6 +22,8 @@ export default function HomeClient({ featuredProducts, categories }: HomeClientP
 
   return (
     <div className="max-w-7xl mx-auto px-6 py-12 w-full">
+
+      {/*
       <div className="flex justify-start mb-6">
         <button 
           onClick={() => setIsSidebarOpen(!isSidebarOpen)}
@@ -31,29 +33,30 @@ export default function HomeClient({ featuredProducts, categories }: HomeClientP
           {isSidebarOpen ? t('hideCategories' as any) : t('showCategories' as any)}
         </button>
       </div>
+      */}
 
       <div className="flex flex-col md:flex-row gap-8 w-full">
-        {isSidebarOpen && <Sidebar categories={categories} />}
+        {/* isSidebarOpen && <Sidebar categories={categories} /> */}
         <div className="flex-1 min-w-0">
-          <FeaturedProducts 
+          <FeaturedProducts
             id="mobile-phones"
-            titleKey="mobilePhones" 
+            titleKey="mobilePhones"
             subtitleKey="mobilePhonesDesc"
             products={featuredProducts.phones}
             viewAllTextKey="viewAllPhones"
             categorySlug="phones"
           />
-          <FeaturedProducts 
+          <FeaturedProducts
             id="phone-accessories"
-            titleKey="phoneAccessories" 
+            titleKey="phoneAccessories"
             subtitleKey="phoneAccessoriesDesc"
             products={featuredProducts.accessories}
             viewAllTextKey="viewAllAccessories"
             categorySlug="accessories"
           />
-          <FeaturedProducts 
+          <FeaturedProducts
             id="vape-accessories"
-            titleKey="vapeAccessories" 
+            titleKey="vapeAccessories"
             subtitleKey="vapeAccessoriesDesc"
             products={featuredProducts.vapes}
             viewAllTextKey="viewAllVape"
