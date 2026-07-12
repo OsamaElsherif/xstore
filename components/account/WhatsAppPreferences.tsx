@@ -85,6 +85,14 @@ export function WhatsAppPreferences({
         </div>
       )}
 
+      {optIn && (
+        <div className="p-3 bg-blue-50 border border-blue-100 rounded-xl animate-in fade-in duration-200">
+          <p className="text-xs text-blue-700">
+            {t('whatsappInfoNote')}
+          </p>
+        </div>
+      )}
+
       <button
         onClick={handleSave}
         disabled={isSaving}
