@@ -20,6 +20,7 @@ export function WhatsAppPreferences({
   );
   const [isSaving, setIsSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [isMsgSent, setIsMsgSent] = useState(false);
 
   const handleSave = async () => {
     if (optIn && !phone) return;
@@ -47,9 +48,12 @@ export function WhatsAppPreferences({
         }`}>
           <input
             type="radio"
-            checked={optIn}
-            onChange={() => setOptIn(true)}
-            className="accent-green-500"
+             checked={optIn}
+             onChange={() => {
+               setOptIn(true);
+               setIsMsgSent(false);
+             }}
+             className="accent-green-500"
           />
           <span className="text-sm font-medium text-gray-800">
             {t('whatsappPrefReceive')}
@@ -63,12 +67,13 @@ export function WhatsAppPreferences({
         }`}>
           <input
             type="radio"
-            checked={!optIn}
-            onChange={() => {
-              setOptIn(false);
-              setPhone('');
-            }}
-            className="accent-red-500"
+             checked={!optIn}
+             onChange={() => {
+               setOptIn(false);
+               setPhone('');
+               setIsMsgSent(false);
+             }}
+             className="accent-red-500"
           />
           <span className="text-sm font-medium text-gray-800">
             {t('whatsappPrefDoNotReceive')}
@@ -94,7 +99,8 @@ export function WhatsAppPreferences({
             href={`https://wa.me/+201039142008?text=${language === 'ar' ? '%D8%A7%D8%B4%D8%B9%D8%A7%D8%B1' : 'Notification'}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-green-500 hover:bg-green-600 text-white text-xs font-bold rounded-xl transition-colors w-full"
+            onClick={() => setIsMsgSent(true)}
+            className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-green-500 hover:bg-green-600 text-white text-xs font-bold rounded-xl transition-colors w-full text-center"
           >
             {t('whatsappMeAction')}
           </a>
@@ -103,8 +109,8 @@ export function WhatsAppPreferences({
 
       <button
         onClick={handleSave}
-        disabled={isSaving}
-        className="w-full py-2.5 bg-brand-dark text-brand-light hover:bg-brand-orange hover:text-brand-dark transition-colors font-bold rounded-xl disabled:opacity-50"
+        disabled={isSaving || (optIn && !phone) || (optIn && !isMsgSent)}
+        className="w-full py-2.5 bg-brand-dark text-brand-light hover:bg-brand-orange hover:text-brand-dark transition-colors font-bold rounded-xl disabled:opacity-50 disabled:cursor-not-allowed"
       >
         {saved ? t('saved') : isSaving ? t('saving') : t('savePreferences')}
       </button>

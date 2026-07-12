@@ -26,6 +26,7 @@ export default function Signup() {
   const [waPhone, setWaPhone] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isMsgSent, setIsMsgSent] = useState(false);
 
   // Step 1 → Step 2
   const handleStep1 = (e: React.FormEvent) => {
@@ -231,7 +232,10 @@ export default function Signup() {
                     name="whatsapp_opt_in"
                     value="true"
                     checked={optIn === true}
-                    onChange={() => setOptIn(true)}
+                    onChange={() => {
+                      setOptIn(true);
+                      setIsMsgSent(false);
+                    }}
                     className="mt-0.5 accent-green-500"
                   />
                   <div>
@@ -258,6 +262,7 @@ export default function Signup() {
                     onChange={() => {
                       setOptIn(false);
                       setWaPhone('');
+                      setIsMsgSent(false);
                     }}
                     className="mt-0.5 accent-red-500"
                   />
@@ -299,6 +304,7 @@ export default function Signup() {
                   href={`https://wa.me/+201039142008?text=${language === 'ar' ? '%D8%A7%D8%B4%D8%B9%D8%A7%D8%B1' : 'Notification'}`}
                   target="_blank"
                   rel="noopener noreferrer"
+                  onClick={() => setIsMsgSent(true)}
                   className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-green-500 hover:bg-green-600 text-white text-xs font-bold rounded-xl transition-colors w-full text-center"
                 >
                   {t('whatsappMeAction')}
@@ -314,7 +320,7 @@ export default function Signup() {
                 </button>
                 <button
                   onClick={handleSubmit}
-                  disabled={isLoading || optIn === null}
+                  disabled={isLoading || optIn === null || (optIn === true && !isMsgSent)}
                   className="flex-1 py-2.5 bg-brand-dark text-brand-light font-bold rounded-xl hover:bg-brand-orange hover:text-brand-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isLoading ? t('creatingAccount') : t('createAccountChecked')}
