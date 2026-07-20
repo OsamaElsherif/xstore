@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="./public/XStore banner.png" alt="XSTORE Logo" width="120" />
+  <img src="./public/XStore banner.png" alt="XSTORE Logo" />
 </p>
 
 <h1 align="center">XSTORE</h1>
