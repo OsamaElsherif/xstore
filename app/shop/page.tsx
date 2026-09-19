@@ -5,8 +5,8 @@ import { getAllProductsForShop } from '@/lib/actions/products';
 import { getCategories } from '@/lib/actions/categories';
 
 export const metadata = {
-  title: 'Shop — Jacob Store',
-  description: 'Browse all products at Jacob Store. Filter by category, price, and more.',
+  title: 'Shop — XStore',
+  description: 'Browse all products at XStore. Filter by category, price, and more.',
 };
 
 export default async function Shop({

@@ -265,7 +265,7 @@ export default function CategoriesManager({ initialCategories }: CategoriesManag
             onClick={() => toggleExpand(category.id)}
             className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-colors ${
               subCount > 0
-                ? 'bg-orange-50 text-orange-600 hover:bg-orange-100'
+                ? 'bg-blue-50 text-blue-600 hover:bg-blue-100 cursor-pointer'
                 : 'bg-gray-50 text-gray-400 cursor-default'
             }`}
           >
@@ -312,7 +312,7 @@ export default function CategoriesManager({ initialCategories }: CategoriesManag
                     setEditingSubcategory(null)
                     setShowSubcategoryForm(category.id)
                   }}
-                  className="flex items-center gap-1 px-3 py-1.5 bg-orange-500 text-white text-xs font-bold rounded-lg hover:bg-orange-600 transition-colors"
+                  className="flex items-center gap-1 px-3 py-1.5 bg-blue-500 text-white text-xs font-bold rounded-lg hover:bg-blue-600 transition-colors"
                 >
                   <Plus size={14} />
                   Add Subcategory
@@ -363,7 +363,7 @@ export default function CategoriesManager({ initialCategories }: CategoriesManag
                                 />
                               </div>
                             ) : (
-                              <div className="w-8 h-8 rounded-lg bg-orange-50 flex items-center justify-center text-orange-600 font-black text-xs flex-shrink-0">
+                              <div className="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center text-blue-600 font-black text-xs flex-shrink-0">
                                 {sub.name_en.charAt(0).toUpperCase()}
                               </div>
                             )}
@@ -372,7 +372,7 @@ export default function CategoriesManager({ initialCategories }: CategoriesManag
                             <div>
                               <div className="flex items-center gap-2">
                                 <p className="text-sm font-bold text-gray-800">{sub.name_en}</p>
-                                <span className="px-2 py-0.5 bg-orange-50 text-orange-600 rounded text-[9px] font-bold">
+                                <span className="px-2 py-0.5 bg-blue-50 text-blue-600 rounded text-[9px] font-bold">
                                   {subSubCount} series
                                 </span>
                               </div>

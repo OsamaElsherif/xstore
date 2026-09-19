@@ -114,10 +114,10 @@ export default function Navbar() {
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2">
             <div className="w-8 h-8 bg-brand-orange rounded-md flex items-center justify-center font-display font-bold text-brand-dark">
-              J
+              X
             </div>
             <span className="font-display font-bold text-xl tracking-tight hidden sm:block">
-              JACOB STORE
+              XSTORE
             </span>
           </Link>
 

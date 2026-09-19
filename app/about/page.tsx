@@ -16,11 +16,11 @@ export default function About() {
       
       <div className="flex-1 max-w-7xl mx-auto w-full px-6 py-12 lg:py-20">
         <div className="text-center max-w-3xl mx-auto mb-16">
-          <h1 className="text-4xl md:text-5xl font-display font-bold text-brand-dark mb-6">About Jacob Store</h1>
-          <p className="text-lg text-brand-gray leading-relaxed">
-            Welcome to Jacob Store, your premier destination for all things mobile and vaping. 
-            We are dedicated to providing top-quality products, expert maintenance services, 
-            and an exceptional customer experience.
+          <h1 className="text-4xl md:text-5xl font-display font-bold text-brand-dark mb-6">About XStore</h1>
+          <p className="text-lg text-brand-black leading-relaxed">
+            Welcome to XStore, a premier destination engineered for scalable commerce. 
+            We are dedicated to providing top-quality products, expert operational services, 
+            and an exceptional user experience tailored for localized retail workflows.
           </p>
         </div>
 
@@ -31,7 +31,7 @@ export default function About() {
               <Smartphone size={32} />
             </div>
             <h3 className="text-xl font-bold text-brand-dark mb-4">Mobile Phones & Covers</h3>
-            <p className="text-brand-gray">
+            <p className="text-brand-black">
               Discover the latest smartphones from top brands. We also specialize in a massive selection of premium covers, screen protectors, and accessories to keep your device safe and stylish.
             </p>
           </div>
@@ -42,7 +42,7 @@ export default function About() {
               <Wrench size={32} />
             </div>
             <h3 className="text-xl font-bold text-brand-dark mb-4">Expert Maintenance</h3>
-            <p className="text-brand-gray">
+            <p className="text-brand-black">
               Is your phone damaged or malfunctioning? Our certified technicians provide fast, reliable, and affordable repair and maintenance services for all major mobile phone brands.
             </p>
           </div>
@@ -53,7 +53,7 @@ export default function About() {
               <Wind size={32} />
             </div>
             <h3 className="text-xl font-bold text-brand-dark mb-4">Vapes & E-Liquids</h3>
-            <p className="text-brand-gray">
+            <p className="text-brand-black">
               Explore our extensive collection of high-quality vapes, pod systems, and a wide variety of premium e-liquids in every flavor imaginable.
             </p>
           </div>
@@ -96,7 +96,7 @@ export default function About() {
         <div className="mt-20">
           <div className="text-center max-w-3xl mx-auto mb-12">
             <h2 className="text-3xl font-display font-bold text-brand-dark mb-4">How Our Maintenance Service Works</h2>
-            <p className="text-lg text-brand-gray">We offer two convenient ways to get your devices repaired and maintained.</p>
+            <p className="text-lg text-brand-black">We offer two convenient ways to get your devices repaired and maintained.</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div className="bg-white p-8 md:p-10 rounded-3xl shadow-sm border border-brand-gray/10 hover:shadow-md transition-shadow relative overflow-hidden">
@@ -105,17 +105,17 @@ export default function About() {
                 <Store size={32} />
               </div>
               <h3 className="text-2xl font-bold text-brand-dark mb-4">1. Visit Our Store</h3>
-              <p className="text-brand-gray leading-relaxed">
+              <p className="text-brand-black leading-relaxed">
                 Prefer face-to-face service? Bring your device directly to our physical store in Alexandria. Our expert technicians will diagnose the issue on the spot and provide fast, reliable repairs while you wait or browse our products.
               </p>
             </div>
             <div className="bg-white p-8 md:p-10 rounded-3xl shadow-sm border border-brand-gray/10 hover:shadow-md transition-shadow relative overflow-hidden">
               <div className="absolute top-0 ltr:right-0 rtl:left-0 w-32 h-32 bg-brand-light/50 rounded-bl-full -z-10"></div>
-              <div className="w-16 h-16 bg-brand-dark text-brand-orange rounded-2xl flex items-center justify-center mb-6">
+              <div className="w-16 h-16 bg-brand-orange text-brand-dark rounded-2xl flex items-center justify-center mb-6">
                 <Truck size={32} />
               </div>
               <h3 className="text-2xl font-bold text-brand-dark mb-4">2. Delivery Service</h3>
-              <p className="text-brand-gray leading-relaxed mb-6">
+              <p className="text-brand-black leading-relaxed mb-6">
                 Can&apos;t make it to the store? No problem. Simply fill out our maintenance request form with full information about your device and the kind of problem you&apos;re facing. Our delivery representative will come to your location to pick it up, and we&apos;ll return it to you once it&apos;s fully repaired.
               </p>
               <Link href="/maintenance" className="inline-block bg-brand-dark text-brand-light px-6 py-3 rounded-xl font-bold hover:bg-brand-orange hover:text-brand-dark transition-colors">
@@ -134,14 +134,14 @@ export default function About() {
                 <MapPin size={24} />
               </div>
               <h4 className="font-bold text-brand-dark mb-2">Location</h4>
-              <p className="text-brand-gray">Alexandria City<br />Egypt</p>
+              <p className="text-brand-black">City<br />Country</p>
             </div>
             <div className="flex flex-col items-center p-6 bg-brand-light/30 rounded-2xl">
               <div className="w-12 h-12 bg-white text-brand-orange rounded-full flex items-center justify-center mb-4 shadow-sm">
                 <Phone size={24} />
               </div>
               <h4 className="font-bold text-brand-dark mb-2">Phone Number</h4>
-              <p className="text-brand-gray" dir="ltr">+20 10 11501507</p>
+              <p className="text-brand-black" dir="ltr">+00 00 00000000</p>
             </div>
           </div>
         </div>

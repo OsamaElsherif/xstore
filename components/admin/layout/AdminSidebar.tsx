@@ -51,7 +51,7 @@ const navItems = [
     items: [
       { label: 'User Management', href: '/admin/users', icon: Users },
       { label: 'Settings', href: '/admin/settings', icon: Settings2 },
-      { label: 'Ads Analytics', href: '/admin/analytics', icon: BarChart3 },
+      // { label: 'Ads Analytics', href: '/admin/analytics', icon: BarChart3 },
       { label: 'WhatsApp Templates', href: '/admin/whatsapp-templates', icon: MessageSquare },
       { label: 'WA Sessions', href: '/admin/whatsapp-sessions', icon: Smartphone },
     ],
@@ -85,10 +85,10 @@ export default function AdminSidebar({ profile, isOpen, onClose }: AdminSidebarP
         {/* Header */}
         <div className="h-16 flex items-center justify-between px-6 border-b border-slate-800">
           <div className="flex items-center gap-2 text-white font-bold text-lg">
-            <div className="bg-orange-500 p-1.5 rounded-lg">
+            <div className="bg-blue-500 p-1.5 rounded-lg">
               <Store size={20} className="text-slate-900" />
             </div>
-            <span>Jacob Store</span>
+            <span>XStore</span>
           </div>
           <button onClick={onClose} className="lg:hidden p-1 hover:bg-slate-800 rounded">
             <X size={20} />
@@ -116,7 +116,7 @@ export default function AdminSidebar({ profile, isOpen, onClose }: AdminSidebarP
                         className={`
                           flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all duration-200 group
                           ${active 
-                            ? 'bg-orange-500 text-slate-900 font-bold shadow-lg shadow-orange-500/20' 
+                            ? 'bg-blue-500 text-slate-900 font-bold shadow-lg shadow-orange-500/20' 
                             : 'hover:bg-slate-800 hover:text-white'
                           }
                         `}
@@ -135,7 +135,7 @@ export default function AdminSidebar({ profile, isOpen, onClose }: AdminSidebarP
         {/* Footer */}
         <div className="p-4 border-t border-slate-800">
           <div className="flex items-center gap-3 px-4 py-3 bg-slate-800/50 rounded-2xl mb-4">
-            <div className="w-10 h-10 rounded-full bg-slate-700 flex items-center justify-center text-orange-500 font-bold border border-slate-600">
+            <div className="w-10 h-10 rounded-full bg-slate-700 flex items-center justify-center text-blue-500 font-bold border border-slate-600">
               {profile.full_name?.charAt(0).toUpperCase()}
             </div>
             <div className="flex-1 min-w-0">

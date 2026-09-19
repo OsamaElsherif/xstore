@@ -134,8 +134,8 @@ export default function CreateStaffForm({ onClose }: CreateStaffFormProps) {
                     className={`
                       px-3 py-2 rounded-xl text-[10px] font-bold border transition-all uppercase tracking-wider
                       ${formData.role === role 
-                        ? 'bg-orange-500 border-orange-500 text-slate-900 shadow-md shadow-orange-500/20' 
-                        : 'bg-white border-gray-200 text-gray-500 hover:border-orange-200 hover:bg-orange-50/30'
+                        ? 'bg-blue-500 border-blue-500 text-slate-900 shadow-md shadow-blue-500/20' 
+                        : 'bg-white border-gray-200 text-gray-500 hover:border-blue-200 hover:bg-blue-50/30'
                       }
                     `}
                   >

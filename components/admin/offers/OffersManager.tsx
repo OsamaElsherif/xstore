@@ -127,7 +127,7 @@ export default function OffersManager({ initialOffers, products }: OffersManager
 
         <button
           onClick={() => setShowForm(true)}
-          className="flex items-center gap-2 px-4 py-2 bg-orange-500 text-white rounded-xl font-semibold text-sm hover:bg-orange-600 transition-colors shadow-sm"
+          className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-xl font-semibold text-sm hover:bg-blue-600 transition-colors shadow-sm"
         >
           <Plus size={16} />
           New Offer
@@ -137,8 +137,8 @@ export default function OffersManager({ initialOffers, products }: OffersManager
       {/* Offers list */}
       {filtered.length === 0 ? (
         <div className="bg-white rounded-3xl border border-gray-100 p-12 text-center">
-          <div className="w-16 h-16 bg-orange-50 rounded-2xl flex items-center justify-center mx-auto mb-4">
-            <Tag size={28} className="text-orange-500" />
+          <div className="w-16 h-16 bg-blue-50 rounded-2xl flex items-center justify-center mx-auto mb-4">
+            <Tag size={28} className="text-blue-500" />
           </div>
           <h3 className="font-bold text-gray-900 mb-1">No offers found</h3>
           <p className="text-sm text-gray-500 mb-6">
@@ -166,10 +166,10 @@ export default function OffersManager({ initialOffers, products }: OffersManager
                 className="bg-white rounded-3xl border border-gray-100 shadow-sm p-6 flex flex-col sm:flex-row sm:items-center gap-4 hover:shadow-md transition-shadow"
               >
                 {/* Discount badge */}
-                <div className="w-14 h-14 rounded-2xl bg-orange-50 border border-orange-100 flex items-center justify-center flex-shrink-0">
+                <div className="w-14 h-14 rounded-2xl bg-blue-50 border border-blue-100 flex items-center justify-center flex-shrink-0">
                   {offer.discount_type === 'PERCENTAGE'
-                    ? <Percent size={24} className="text-orange-500" />
-                    : <DollarSign size={24} className="text-orange-500" />
+                    ? <Percent size={24} className="text-blue-500" />
+                    : <DollarSign size={24} className="text-blue-500" />
                   }
                 </div>
 
@@ -185,7 +185,7 @@ export default function OffersManager({ initialOffers, products }: OffersManager
                     <p className="text-sm text-gray-500 mb-2 line-clamp-1">{offer.description}</p>
                   )}
                   <div className="flex flex-wrap items-center gap-4 text-xs text-gray-500">
-                    <span className="flex items-center gap-1 font-semibold text-orange-600">
+                    <span className="flex items-center gap-1 font-semibold text-red-600">
                       {offer.discount_type === 'PERCENTAGE'
                         ? `${offer.discount_value}% OFF`
                         : `EGP ${offer.discount_value} OFF`

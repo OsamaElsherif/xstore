@@ -66,7 +66,7 @@ export default function AdminTopbar({ profile, onMenuClick }: AdminTopbarProps) 
             onClick={() => setDropdownOpen(!dropdownOpen)}
             className="flex items-center gap-2 p-1 md:p-1.5 hover:bg-gray-100 rounded-xl transition-all"
           >
-            <div className="w-8 h-8 rounded-lg bg-orange-100 flex items-center justify-center text-orange-600 font-bold border border-orange-200">
+            <div className="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center text-blue-600 font-bold border border-blue-200">
               {profile.full_name?.charAt(0).toUpperCase()}
             </div>
             <div className="hidden md:block text-start">

@@ -30,13 +30,13 @@ export default function Login() {
       
       <div className="flex-1 flex items-center justify-center p-6">
         <div className="w-full max-w-md bg-white rounded-2xl shadow-xl p-8 border border-brand-gray/10">
-          <div className="text-center mb-8">
-            <div className="w-12 h-12 bg-brand-orange rounded-xl flex items-center justify-center font-display font-bold text-brand-dark mx-auto mb-4 text-2xl">
-              J
-            </div>
-            <h1 className="text-2xl font-display font-bold text-brand-dark mb-2">Welcome Back</h1>
-            <p className="text-brand-gray text-sm">Sign in to continue to Jacob Store</p>
+        <div className="text-center mb-8">
+          <div className="w-12 h-12 bg-brand-orange rounded-xl flex items-center justify-center font-display font-bold text-white mx-auto mb-4 text-2xl">
+            X
           </div>
+          <h1 className="text-2xl font-display font-bold text-brand-dark mb-2">Welcome Back</h1>
+          <p className="text-brand-black text-sm">Sign in to continue to XStore</p>
+        </div>
 
           <form action={handleSubmit} className="space-y-5">
             {error && (
@@ -98,7 +98,7 @@ export default function Login() {
             </button>
           </form>
 
-          <div className="mt-8 text-center text-sm text-brand-gray">
+          <div className="mt-8 text-center text-sm text-brand-black">
             Don&apos;t have an account?{' '}
             <Link href="/signup" className="text-brand-orange font-medium hover:underline">
               Sign up

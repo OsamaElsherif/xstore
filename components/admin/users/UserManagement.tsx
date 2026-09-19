@@ -84,7 +84,7 @@ export default function UserManagement({
 
           <button 
             onClick={() => setShowCreateForm(true)}
-            className="w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-2.5 bg-orange-500 text-slate-900 font-bold rounded-2xl hover:bg-orange-600 transition-all shadow-lg shadow-orange-500/20"
+            className="w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-2.5 bg-blue-500 text-slate-900 font-bold rounded-2xl hover:bg-blue-600 transition-all shadow-lg shadow-blue-500/20"
           >
             <UserPlus size={20} />
             Add Staff Member

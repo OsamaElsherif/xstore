@@ -53,7 +53,7 @@ export default async function AdminDashboard() {
           <p className="text-gray-500 text-sm">Here is what is happening today.</p>
         </div>
         <div className="text-sm font-medium text-gray-500 bg-white px-4 py-2 rounded-xl border border-gray-200 shadow-sm flex items-center gap-2">
-          <Clock size={16} className="text-orange-500" />
+          <Clock size={16} className="text-blue-500" />
           {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
         </div>
       </div>

@@ -5,7 +5,7 @@ import { redirect } from 'next/navigation'
 import OffersManager from '@/components/admin/offers/OffersManager'
 
 export const metadata = {
-  title: 'Offers & Discounts — Jacob Store Admin',
+  title: 'Offers & Discounts — XStore Admin',
   description: 'Create and manage promotional offers and discounts.',
 }
 

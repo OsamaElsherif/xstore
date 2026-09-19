@@ -5,7 +5,7 @@ import { redirect } from 'next/navigation'
 import { getCurrentProfile } from '@/lib/actions/auth'
 
 export const metadata = {
-  title: 'WhatsApp Sessions — Jacob Store Admin',
+  title: 'WhatsApp Sessions — XStore Admin',
   description: 'Manage all Wasender WhatsApp sessions',
 }
 

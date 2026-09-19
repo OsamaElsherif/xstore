@@ -25,7 +25,7 @@ export default async function AdminOrdersPage() {
         {['ADMIN', 'CASHIER'].includes(profile.role) && (
           <Link 
             href="/admin/orders/new"
-            className="px-6 py-3 bg-orange-500 text-slate-900 font-bold rounded-2xl hover:bg-orange-600 transition-all shadow-lg shadow-orange-500/20 flex items-center gap-2"
+            className="px-6 py-3 bg-blue-500 text-slate-900 font-bold rounded-2xl hover:bg-blue-600 transition-all shadow-lg shadow-blue-500/20 flex items-center gap-2"
           >
             <Plus size={20} />
             Create New Order

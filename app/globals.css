@@ -1,8 +1,10 @@
 @import "tailwindcss";
 
 @theme {
-  --color-brand-orange: #FFAE42;
-  --color-brand-gray: #DADADA;
-  --color-brand-light: #F3F3F3;
-  --color-brand-dark: #1F222C;
+  /* Brand color schema mapped to logo specs */
+  --color-brand-orange: #2563EB; /* Electric Blue primary accent */
+  --color-brand-purple: #7C3AED; /* Deep Purple gradient partner */
+  --color-brand-gray: #E2E8F0;   /* Clean modern slate border/gray */
+  --color-brand-light: #F8FAFC;  /* Off-white background */
+  --color-brand-dark: #0F172A;   /* Solid Deep Navy Blue corporate base */
 }

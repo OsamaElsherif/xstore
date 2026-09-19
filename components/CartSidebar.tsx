@@ -43,12 +43,12 @@ export default function CartSidebar() {
         <div className="flex-1 overflow-y-auto p-6">
           {items.length === 0 ? (
             <div className="h-full flex flex-col items-center justify-center text-center space-y-4">
-              <div className="w-20 h-20 bg-brand-light rounded-full flex items-center justify-center text-brand-gray">
+              <div className="w-20 h-20 bg-brand-light rounded-full flex items-center justify-center text-brand-orange">
                 <ShoppingBag size={40} />
               </div>
               <div>
                 <h3 className="font-bold text-brand-dark text-lg mb-1">Your cart is empty</h3>
-                <p className="text-brand-gray text-sm">Looks like you haven&apos;t added anything yet.</p>
+                <p className="text-brand-orange text-sm">Looks like you haven&apos;t added anything yet.</p>
               </div>
               <button 
                 onClick={() => setIsCartOpen(false)}

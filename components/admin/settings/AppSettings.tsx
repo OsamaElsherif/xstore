@@ -72,7 +72,7 @@ export default function AppSettings({ initialSettings }: AppSettingsProps) {
           <MessageSquare size={18} />
           WhatsApp
         </button>
-        <button
+        {/* <button
           onClick={() => setActiveTab('meta')}
           className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl text-sm font-bold transition-all ${
             activeTab === 'meta' 
@@ -82,7 +82,7 @@ export default function AppSettings({ initialSettings }: AppSettingsProps) {
         >
           <BarChart3 size={18} />
           Meta & Ads
-        </button>
+        </button> */}
       </div>
 
       {/* Save Status Overlay */}

@@ -14,11 +14,11 @@ export default function Footer() {
           {/* Brand & About */}
           <div className="space-y-6">
             <Link href="/" className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-brand-orange rounded-md flex items-center justify-center font-display font-bold text-brand-dark">
-                J
+              <div className="w-8 h-8 bg-brand-orange rounded-md flex items-center justify-center font-display font-bold text-white">
+                X
               </div>
               <span className="font-display font-bold text-xl tracking-tight">
-                JACOB STORE
+                XSTORE
               </span>
             </Link>
             <p className="text-brand-gray/80 leading-relaxed text-sm">
@@ -27,11 +27,7 @@ export default function Footer() {
             <div className="space-y-3 pt-2">
               <div className="flex items-start gap-3 text-brand-gray/80 text-sm">
                 <MapPin size={18} className="text-brand-orange shrink-0 mt-0.5" />
-                <span>Alexandria City, Egypt</span>
-              </div>
-              <div className="flex items-center gap-3 text-brand-gray/80 text-sm">
-                <Phone size={18} className="text-brand-orange shrink-0" />
-                <span dir="ltr">+20 10 11501507</span>
+                <span>City, Country</span>
               </div>
             </div>
             <div className="flex gap-4 pt-2">
@@ -85,14 +81,14 @@ export default function Footer() {
             <form className="flex flex-col gap-3">
               <div className="relative">
                 <Mail className="absolute ltr:left-3 rtl:right-3 top-1/2 -translate-y-1/2 text-brand-gray" size={18} />
-                <input 
-                  type="email" 
-                  placeholder={t('enterEmail')} 
+                <input
+                  type="email"
+                  placeholder={t('enterEmail')}
                   className="w-full bg-brand-light/10 border border-brand-gray/20 rounded-lg py-3 px-4 ltr:pl-10 rtl:pr-10 text-sm focus:outline-none focus:ring-2 focus:ring-brand-orange text-brand-light placeholder:text-brand-gray/60"
                 />
               </div>
-              <button 
-                type="submit" 
+              <button
+                type="submit"
                 className="w-full bg-brand-orange text-brand-dark font-bold py-3 rounded-lg hover:bg-opacity-90 transition-colors"
               >
                 {t('subscribe')}
@@ -103,7 +99,7 @@ export default function Footer() {
 
         <div className="border-t border-brand-gray/20 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
           <p className="text-brand-gray/60 text-sm">
-            &copy; {new Date().getFullYear()} JACOB STORE. {t('allRightsReserved')}
+            &copy; {new Date().getFullYear()} XSTORE. {t('allRightsReserved')}
           </p>
           <div className="flex gap-4 text-sm text-brand-gray/60">
             <Link href="#" className="hover:text-brand-orange transition-colors">{t('termsOfService')}</Link>

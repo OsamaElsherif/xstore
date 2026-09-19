@@ -131,7 +131,7 @@ export default function OfferForm({ offer, products, onSuccess, onCancel }: Offe
         <div className="space-y-6">
           <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-6 space-y-5">
             <h2 className="font-bold text-gray-900 text-lg flex items-center gap-2">
-              <Tag size={20} className="text-orange-500" />
+              <Tag size={20} className="text-blue-500" />
               {isEdit ? 'Edit Offer' : 'New Offer'}
             </h2>
 
@@ -175,8 +175,8 @@ export default function OfferForm({ offer, products, onSuccess, onCancel }: Offe
                   onClick={() => setDiscountType('PERCENTAGE')}
                   className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold border transition-all ${
                     discountType === 'PERCENTAGE'
-                      ? 'bg-orange-500 text-white border-orange-500'
-                      : 'bg-white text-gray-600 border-gray-200 hover:border-orange-300'
+                      ? 'bg-blue-500 text-white border-blue-500'
+                      : 'bg-white text-gray-600 border-gray-200 hover:border-blue-300'
                   }`}
                 >
                   <Percent size={14} />
@@ -187,8 +187,8 @@ export default function OfferForm({ offer, products, onSuccess, onCancel }: Offe
                   onClick={() => setDiscountType('FIXED')}
                   className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold border transition-all ${
                     discountType === 'FIXED'
-                      ? 'bg-orange-500 text-white border-orange-500'
-                      : 'bg-white text-gray-600 border-gray-200 hover:border-orange-300'
+                      ? 'bg-orange-500 text-white border-blue-500'
+                      : 'bg-white text-gray-600 border-gray-200 hover:border-blue-300'
                   }`}
                 >
                   <DollarSign size={14} />
@@ -219,7 +219,7 @@ export default function OfferForm({ offer, products, onSuccess, onCancel }: Offe
                   type="date"
                   value={startDate}
                   onChange={(e) => setStartDate(e.target.value)}
-                  className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent"
+                  className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
                 />
               </div>
               <div>
@@ -228,7 +228,7 @@ export default function OfferForm({ offer, products, onSuccess, onCancel }: Offe
                   type="date"
                   value={endDate}
                   onChange={(e) => setEndDate(e.target.value)}
-                  className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent"
+                  className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
                 />
               </div>
             </div>
@@ -243,7 +243,7 @@ export default function OfferForm({ offer, products, onSuccess, onCancel }: Offe
                 type="button"
                 onClick={() => setIsActive((v) => !v)}
                 className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                  isActive ? 'bg-orange-500' : 'bg-gray-300'
+                  isActive ? 'bg-blue-500' : 'bg-gray-300'
                 }`}
               >
                 <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
@@ -254,8 +254,8 @@ export default function OfferForm({ offer, products, onSuccess, onCancel }: Offe
 
             {/* Live preview */}
             {previewProduct && previewDiscounted !== null && (
-              <div className="border border-orange-100 bg-orange-50 rounded-2xl p-4">
-                <p className="text-xs font-semibold text-orange-600 flex items-center gap-1 mb-3">
+              <div className="border border-blue-100 bg-blue-50 rounded-2xl p-4">
+                <p className="text-xs font-semibold text-blue-600 flex items-center gap-1 mb-3">
                   <Eye size={12} /> Live Preview
                 </p>
                 <div className="flex items-center gap-3">
@@ -290,7 +290,7 @@ export default function OfferForm({ offer, products, onSuccess, onCancel }: Offe
           <button
             type="submit"
             disabled={isPending}
-            className="w-full flex items-center justify-center gap-2 py-3 bg-orange-500 hover:bg-orange-600 text-white rounded-xl font-bold transition-colors disabled:opacity-60 shadow-sm"
+            className="w-full flex items-center justify-center gap-2 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-xl font-bold transition-colors disabled:opacity-60 shadow-sm"
           >
             <Save size={18} />
             {isPending ? 'Saving…' : isEdit ? 'Save Changes' : 'Create Offer'}
@@ -326,7 +326,7 @@ export default function OfferForm({ offer, products, onSuccess, onCancel }: Offe
                   key={p.id}
                   className={`flex items-center gap-3 p-3 rounded-2xl border cursor-pointer transition-all ${
                     selected
-                      ? 'border-orange-300 bg-orange-50'
+                      ? 'border-blue-300 bg-blue-50'
                       : 'border-gray-100 hover:border-gray-200 hover:bg-gray-50'
                   }`}
                 >
@@ -334,7 +334,7 @@ export default function OfferForm({ offer, products, onSuccess, onCancel }: Offe
                     type="checkbox"
                     checked={selected}
                     onChange={() => toggleProduct(p.id)}
-                    className="w-4 h-4 accent-orange-500 flex-shrink-0"
+                    className="w-4 h-4 accent-blue-500 flex-shrink-0"
                   />
                   {p.image_url && (
                     <div className="relative w-10 h-10 rounded-xl overflow-hidden bg-gray-100 flex-shrink-0">
